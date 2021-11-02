@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.simplepomodoro.ui.theme.LightOrange
 
 @Composable
 fun DismissableSnackbar(scaffoldState: ScaffoldState, snackbarMessage: String) {
@@ -21,7 +20,7 @@ fun DismissableSnackbar(scaffoldState: ScaffoldState, snackbarMessage: String) {
                 },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color.Transparent,
-                    contentColor = LightOrange
+                    contentColor = MaterialTheme.colors.onPrimary
                 )
             ) {
                 Text("Dismiss")

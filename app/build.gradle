@@ -70,4 +70,7 @@ dependencies {
 
     // for viewmodels inside composables
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0"
+
+    // all material theme icons
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
 }

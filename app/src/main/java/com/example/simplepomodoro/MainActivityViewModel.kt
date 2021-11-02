@@ -6,17 +6,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.simplepomodoro.Constants.initialTimerSeconds
-import timber.log.Timber
 
 class MainActivityViewModel: ViewModel() {
     var timerStateValue by mutableStateOf(initialTimerSeconds)
         private set
 
+    var timerStateActive by mutableStateOf(false)
+        private set
+
     private val pomodoroTimer: CountDownTimer
 
-    fun startPomodoroTimer(): CountDownTimer = pomodoroTimer.start()
+    fun startPomodoroTimer() {
+        pomodoroTimer.start()
+        timerStateActive = true
+    }
 
-    fun stopPomodoroTimer() = pomodoroTimer.cancel()
+    fun stopPomodoroTimer() {
+        pomodoroTimer.cancel()
+        timerStateActive = false
+        timerStateValue = initialTimerSeconds
+    }
 
     init {
         pomodoroTimer = object : CountDownTimer(initialTimerSeconds * 1000, 1000) {
@@ -25,7 +34,7 @@ class MainActivityViewModel: ViewModel() {
             }
 
             override fun onFinish() {
-                Timber.d("pomodoro timer finished")
+                timerStateActive = false
             }
         }
     }
