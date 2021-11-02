@@ -11,11 +11,14 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.simplepomodoro.components.DismissableSnackbar
 import com.example.simplepomodoro.ui.theme.SimplePomodoroTheme
+import kotlinx.coroutines.launch
 
 object Constants {
     const val initialTimerSeconds: Long = 30
@@ -34,9 +37,20 @@ class MainActivity : ComponentActivity() {
 fun SimplePomodoroApp() {
     SimplePomodoroTheme {
         val viewModel: MainActivityViewModel = viewModel()
+        val scaffoldState = rememberScaffoldState()
+        val coroutineScope = rememberCoroutineScope()
         // A surface container using the 'background' color from the theme
         Surface(color = MaterialTheme.colors.background) {
             Scaffold(
+                scaffoldState = scaffoldState,
+                snackbarHost = {
+                    SnackbarHost(hostState = it) { snackbarData ->
+                        DismissableSnackbar(
+                            scaffoldState = scaffoldState,
+                            snackbarMessage = snackbarData.message
+                        )
+                    }
+                },
                 bottomBar = {
                     BottomAppBar(
                         cutoutShape = CircleShape
@@ -48,6 +62,12 @@ fun SimplePomodoroApp() {
                     FloatingActionButton(
                         onClick = {
                             viewModel.startPomodoroTimer()
+                            coroutineScope.launch {
+                                scaffoldState.snackbarHostState
+                                    .showSnackbar(
+                                        "Timer Started"
+                                    )
+                            }
                         }
                     ) {
                         Icon(
@@ -58,10 +78,11 @@ fun SimplePomodoroApp() {
 
                 },
                 isFloatingActionButtonDocked = true,
-                floatingActionButtonPosition = FabPosition.Center
+                floatingActionButtonPosition = FabPosition.Center,
             ) {
+                // stateless, as we don't pass the ViewModel
                 TimerText(
-                    viewModel = viewModel,
+                    text = DateUtils.formatElapsedTime(viewModel.timerStateValue),
                     modifier = Modifier
                         .then(
                             Modifier
@@ -75,9 +96,9 @@ fun SimplePomodoroApp() {
 }
 
 @Composable
-fun TimerText(viewModel: MainActivityViewModel, modifier: Modifier) {
+fun TimerText(text: String, modifier: Modifier) {
     Text(
-        text = DateUtils.formatElapsedTime(viewModel.timerState.value),
+        text = text,
         modifier = modifier,
         fontSize = MaterialTheme.typography.h2.fontSize
     )
