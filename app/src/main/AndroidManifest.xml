@@ -3,6 +3,7 @@
     package="com.example.simplepomodoro">
 
     <application
+        android:name=".SimplePomodoroApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

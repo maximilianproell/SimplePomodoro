@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SimplePomodoro</string>
+    <string name="startPomodoroTimer">Start Pomodoro Timer</string>
 </resources>
