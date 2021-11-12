@@ -10,26 +10,25 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.simplepomodoro.R
+import com.example.simplepomodoro.components.BottomSheetEntry
+import kotlinx.coroutines.launch
 
+
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainScreen() {
     val viewModel: MainScreenViewModel = viewModel()
     val scaffoldState = rememberScaffoldState()
-
+    val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val coroutineScope = rememberCoroutineScope()
     val iconScale = remember { Animatable(0f) }
 
     suspend fun animateScale(targetValue: Float) {
@@ -54,8 +53,18 @@ fun MainScreen() {
         }
     }
 
-    // A surface container using the 'background' color from the theme
-    Surface(color = MaterialTheme.colors.background) {
+    ModalBottomSheetLayout(
+        sheetState = bottomSheetState,
+        sheetContent = {
+            BottomSheetEntry(
+                text = stringResource(id = R.string.settings),
+                icon = Icons.Filled.Settings,
+                onclick = {
+                    // TODO: implement
+                }
+            )
+        }
+    ) {
         Scaffold(
             scaffoldState = scaffoldState,
             bottomBar = {
@@ -64,7 +73,11 @@ fun MainScreen() {
                 ) {
                     // Leading icons should typically have a high content alpha
                     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
-                        IconButton(onClick = { /* doSomething() */ }) {
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                bottomSheetState.show()
+                            }
+                        }) {
                             Icon(Icons.Filled.Menu, contentDescription = "Localized description")
                         }
                     }

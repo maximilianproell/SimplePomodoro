@@ -1,5 +1,6 @@
 package com.example.simplepomodoro.navigation
 
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -7,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.simplepomodoro.ui.main.MainScreen
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PomodoroNavHost(
     navController: NavHostController,
