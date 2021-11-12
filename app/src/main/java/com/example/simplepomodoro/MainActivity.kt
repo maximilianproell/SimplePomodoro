@@ -8,12 +8,15 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
+import androidx.navigation.compose.rememberNavController
+import com.example.simplepomodoro.navigation.PomodoroNavHost
 import com.example.simplepomodoro.service.PomodoroService
-import com.example.simplepomodoro.ui.main.SimplePomodoroApp
+import com.example.simplepomodoro.ui.theme.SimplePomodoroTheme
 import timber.log.Timber
 
 object Constants {
-    const val initialTimerSeconds: Long = 5
+    const val initialTimerSeconds: Long = 1500
 }
 
 class MainActivity : ComponentActivity() {
@@ -39,7 +42,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            SimplePomodoroApp()
+            PomodoroApp()
         }
     }
 
@@ -62,3 +65,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun PomodoroApp() {
+    SimplePomodoroTheme {
+        val navController = rememberNavController()
+        PomodoroNavHost(navController = navController)
+    }
+}

@@ -1,4 +1,4 @@
-package com.example.simplepomodoro
+package com.example.simplepomodoro.ui.main
 
 import android.os.CountDownTimer
 import androidx.compose.runtime.getValue
@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.simplepomodoro.Constants.initialTimerSeconds
 
-class MainActivityViewModel: ViewModel() {
+class MainScreenViewModel: ViewModel() {
     var timerStateValue by mutableStateOf(initialTimerSeconds)
         private set
 
