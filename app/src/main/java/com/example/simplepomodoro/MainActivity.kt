@@ -8,10 +8,12 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.navigation.compose.rememberNavController
+import com.example.simplepomodoro.Constants.initialTimerSeconds
 import com.example.simplepomodoro.navigation.PomodoroNavHost
 import com.example.simplepomodoro.service.PomodoroService
+import com.example.simplepomodoro.ui.main.MainScreenEvent
 import com.example.simplepomodoro.ui.theme.SimplePomodoroTheme
 import timber.log.Timber
 
@@ -20,8 +22,17 @@ object Constants {
 }
 
 class MainActivity : ComponentActivity() {
-    private lateinit var pomodoroService: PomodoroService
-    private var isServiceBound = false
+    sealed class ServiceState {
+        object Running: ServiceState()
+        object Paused: ServiceState()
+        object Stopped: ServiceState()
+        val timerValue: Long = initialTimerSeconds
+    }
+
+    private var pomodoroService: PomodoroService? = null
+    private var mutableServiceState by mutableStateOf<ServiceState>(
+        ServiceState.Stopped
+    )
 
     /** Defines callbacks for service binding, passed to bindService()  */
     private val connection = object : ServiceConnection {
@@ -30,19 +41,37 @@ class MainActivity : ComponentActivity() {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             val binder = service as PomodoroService.PomodoroServiceBinder
             pomodoroService = binder.getService()
-            isServiceBound = true
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
-            isServiceBound = false
+            pomodoroService = null
         }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            PomodoroApp()
+            PomodoroApp(mainScreenEventHandler = { event ->
+                when (event) {
+                    MainScreenEvent.OnPauseTimer -> {
+
+                    }
+                    MainScreenEvent.OnStartTimer -> {
+                        startService(
+                            Intent(this, PomodoroService::class.java)
+                        )
+                        mutableServiceState = ServiceState.Running
+                    }
+                    MainScreenEvent.OnStopTimer -> {
+                        stopService(
+                            Intent(this, PomodoroService::class.java)
+                        )
+                        unbindService(connection)
+                        mutableServiceState = ServiceState.Stopped
+                    }
+                }
+            },
+            serviceState = mutableServiceState)
         }
     }
 
@@ -61,14 +90,21 @@ class MainActivity : ComponentActivity() {
 
     private fun unbindPomodoroService() {
         unbindService(connection)
-        isServiceBound = false
+        pomodoroService = null
     }
 }
 
 @Composable
-fun PomodoroApp() {
+fun PomodoroApp(
+    mainScreenEventHandler: (MainScreenEvent) -> Unit,
+    serviceState: MainActivity.ServiceState
+) {
     SimplePomodoroTheme {
         val navController = rememberNavController()
-        PomodoroNavHost(navController = navController)
+        PomodoroNavHost(
+            navController = navController,
+            serviceState = serviceState,
+            mainScreenEventHandler = mainScreenEventHandler,
+        )
     }
 }
