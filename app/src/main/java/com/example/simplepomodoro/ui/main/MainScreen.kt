@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.simplepomodoro.R
 import com.example.simplepomodoro.components.BottomSheetEntry
@@ -63,7 +65,15 @@ fun MainScreen() {
                     // TODO: implement
                 }
             )
-        }
+            BottomSheetEntry(
+                text = stringResource(id = R.string.about),
+                icon = Icons.Filled.Info,
+                onclick = {
+                    // TODO: implement
+                }
+            )
+        },
+        sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
         Scaffold(
             scaffoldState = scaffoldState,

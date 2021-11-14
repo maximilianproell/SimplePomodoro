@@ -3,4 +3,5 @@
     <string name="startPomodoroTimer">Start Pomodoro Timer</string>
     <string name="stopPomodoroTimer">Stop Pomodoro Timer</string>
     <string name="settings">Settings</string>
+    <string name="about">About</string>
 </resources>

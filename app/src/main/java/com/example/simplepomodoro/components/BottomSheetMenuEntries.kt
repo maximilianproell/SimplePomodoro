@@ -31,7 +31,7 @@ fun BottomSheetEntry(
             .fillMaxWidth()
             .padding(
                 horizontal = 16.dp,
-                vertical = 8.dp
+                vertical = 16.dp
             ),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
