@@ -7,8 +7,11 @@ import android.os.CountDownTimer
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.example.simplepomodoro.Constants
+import com.example.simplepomodoro.MainActivity
 import com.example.simplepomodoro.R
 import com.example.simplepomodoro.SimplePomodoroApplication.Constants.CHANNEL_ID
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 
 class PomodoroService: Service() {
@@ -17,6 +20,11 @@ class PomodoroService: Service() {
     private val pomodoroTimer: CountDownTimer
     private var isTimerActive = false
     private var timerValue = Constants.initialTimerSeconds
+
+    private val _pomodoroState: MutableStateFlow<MainActivity.ServiceState> =
+        MutableStateFlow(MainActivity.ServiceState.Stopped)
+
+    val pomodoroState: StateFlow<MainActivity.ServiceState> = _pomodoroState
 
     override fun onCreate() {
         super.onCreate()
@@ -34,6 +42,8 @@ class PomodoroService: Service() {
 
         startPomodoroTimer()
 
+        _pomodoroState.value = MainActivity.ServiceState.Running
+
         return START_STICKY
     }
 
@@ -41,6 +51,7 @@ class PomodoroService: Service() {
         super.onDestroy()
 
         stopPomodoroTimer()
+        _pomodoroState.value = MainActivity.ServiceState.Stopped
     }
 
     override fun onBind(intent: Intent?): IBinder {

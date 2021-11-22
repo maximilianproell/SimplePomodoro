@@ -9,12 +9,17 @@ import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.simplepomodoro.Constants.initialTimerSeconds
 import com.example.simplepomodoro.navigation.PomodoroNavHost
 import com.example.simplepomodoro.service.PomodoroService
 import com.example.simplepomodoro.ui.main.MainScreenEvent
 import com.example.simplepomodoro.ui.theme.SimplePomodoroTheme
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 object Constants {
@@ -41,6 +46,15 @@ class MainActivity : ComponentActivity() {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             val binder = service as PomodoroService.PomodoroServiceBinder
             pomodoroService = binder.getService()
+             pomodoroService?.pomodoroState?.let { serviceStateFlow ->
+                 lifecycleScope.launch {
+                     repeatOnLifecycle(Lifecycle.State.STARTED) {
+                         serviceStateFlow.collect { state ->
+                             mutableServiceState = state
+                         }
+                     }
+                 }
+            }
         }
 
         override fun onServiceDisconnected(arg0: ComponentName) {
@@ -60,14 +74,12 @@ class MainActivity : ComponentActivity() {
                         startService(
                             Intent(this, PomodoroService::class.java)
                         )
-                        mutableServiceState = ServiceState.Running
                     }
                     MainScreenEvent.OnStopTimer -> {
                         stopService(
                             Intent(this, PomodoroService::class.java)
                         )
                         unbindService(connection)
-                        mutableServiceState = ServiceState.Stopped
                     }
                 }
             },
