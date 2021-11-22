@@ -74,6 +74,7 @@ class MainActivity : ComponentActivity() {
                         startService(
                             Intent(this, PomodoroService::class.java)
                         )
+                        bindPomodoroService()
                     }
                     MainScreenEvent.OnStopTimer -> {
                         stopService(
@@ -87,12 +88,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        Timber.d("start state called of activity")
+    private fun bindPomodoroService() {
         Intent(this, PomodoroService::class.java).also { intent ->
             bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        bindPomodoroService()
     }
 
     override fun onStop() {
