@@ -13,8 +13,19 @@ import com.example.simplepomodoro.SimplePomodoroApplication.Constants.CHANNEL_ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
+import android.app.Notification
+import android.app.NotificationManager
 
-class PomodoroService: Service() {
+import android.app.PendingIntent
+import android.content.Context
+import android.text.format.DateUtils
+import com.example.simplepomodoro.service.PomodoroService.ServiceConstants.timerNotificationId
+
+class PomodoroService : Service() {
+    private object ServiceConstants {
+        const val timerNotificationId = 1
+    }
+
     private val binder = PomodoroServiceBinder()
 
     private val pomodoroTimer: CountDownTimer
@@ -33,12 +44,8 @@ class PomodoroService: Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(getText(R.string.app_name))
-            .setContentTitle("This is a test service now")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .build()
-        startForeground(1, notification)
+        val notification = getMyActivityNotification(timeLeft = timerValue)
+        startForeground(timerNotificationId, notification)
 
         startPomodoroTimer()
 
@@ -58,8 +65,35 @@ class PomodoroService: Service() {
         return binder
     }
 
-    inner class PomodoroServiceBinder: Binder() {
+    inner class PomodoroServiceBinder : Binder() {
         fun getService(): PomodoroService = this@PomodoroService
+    }
+
+    private fun getMyActivityNotification(timeLeft: Long): Notification {
+        // The PendingIntent to launch our activity if the user selects
+        // this notification
+        val contentIntent = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle(getText(R.string.app_name))
+            .setContentText("Time left: ${DateUtils.formatElapsedTime(timeLeft)}")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setOnlyAlertOnce(true)
+            .setOngoing(true)
+            .setContentIntent(contentIntent)
+            .build()
+    }
+
+    private fun updateNotification() {
+        val notification = getMyActivityNotification(timeLeft = timerValue)
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).apply {
+            notify(timerNotificationId, notification)
+        }
     }
 
     private fun startPomodoroTimer() {
@@ -76,6 +110,7 @@ class PomodoroService: Service() {
         pomodoroTimer = object : CountDownTimer(Constants.initialTimerSeconds * 1000, 1000) {
             override fun onTick(p0: Long) {
                 timerValue = p0 / 1000
+                updateNotification()
             }
 
             override fun onFinish() {
