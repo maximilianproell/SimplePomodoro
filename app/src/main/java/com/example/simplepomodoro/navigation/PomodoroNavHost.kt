@@ -8,7 +8,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.simplepomodoro.MainActivity
 import com.example.simplepomodoro.ui.main.MainScreen
+import com.example.simplepomodoro.ui.main.MainScreenBottomSheetEvent
 import com.example.simplepomodoro.ui.main.MainScreenEvent
+import com.example.simplepomodoro.ui.settings.SettingsScreen
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -26,8 +28,19 @@ fun PomodoroNavHost(
         composable(route = PomodoroScreen.Main.routeName) {
             MainScreen(
                 mainScreenEventHandler = mainScreenEventHandler,
-                serviceState = serviceState
+                bottomSheetEventHandler = { event: MainScreenBottomSheetEvent ->
+                    when(event) {
+                        MainScreenBottomSheetEvent.OnAboutClick -> TODO()
+                        MainScreenBottomSheetEvent.OnSettingsClick -> navController.navigate(
+                            PomodoroScreen.Settings.routeName
+                        )
+                    }
+                },
+                serviceState = serviceState,
             )
+        }
+        composable(route = PomodoroScreen.Settings.routeName) {
+            SettingsScreen()
         }
     }
 }

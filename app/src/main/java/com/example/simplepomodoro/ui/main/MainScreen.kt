@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.simplepomodoro.MainActivity
 import com.example.simplepomodoro.R
 import com.example.simplepomodoro.components.BottomSheetEntry
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 sealed class MainScreenEvent {
@@ -30,15 +31,24 @@ sealed class MainScreenEvent {
     object OnStopTimer : MainScreenEvent()
 }
 
+sealed class MainScreenBottomSheetEvent {
+    object OnSettingsClick : MainScreenBottomSheetEvent()
+    object OnAboutClick : MainScreenBottomSheetEvent()
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainScreen(
     viewModel: MainScreenViewModel = viewModel(),
     mainScreenEventHandler: (MainScreenEvent) -> Unit,
+    bottomSheetEventHandler: (MainScreenBottomSheetEvent) -> Unit,
     serviceState: MainActivity.ServiceState,
 ) {
     val scaffoldState = rememberScaffoldState()
-    val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val bottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        confirmStateChange = {true}
+    )
     val coroutineScope = rememberCoroutineScope()
     val iconScale = remember { Animatable(0f) }
 
@@ -71,14 +81,26 @@ fun MainScreen(
                 text = stringResource(id = R.string.settings),
                 icon = Icons.Filled.Settings,
                 onclick = {
-                    // TODO: implement
+                    hideBottomSheet(
+                        scope = coroutineScope,
+                        bottomSheetState = bottomSheetState,
+                        onClickEvent = {
+                            // todo find out how to correclty hide that thing
+                            bottomSheetEventHandler(
+                                MainScreenBottomSheetEvent.OnSettingsClick
+                            )
+                        })
                 }
             )
             BottomSheetEntry(
                 text = stringResource(id = R.string.about),
                 icon = Icons.Filled.Info,
                 onclick = {
-                    // TODO: implement
+                    hideBottomSheet(scope = coroutineScope, bottomSheetState = bottomSheetState) {
+                        bottomSheetEventHandler(
+                            MainScreenBottomSheetEvent.OnAboutClick
+                        )
+                    }
                 }
             )
         },
@@ -148,6 +170,17 @@ fun MainScreen(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
+fun hideBottomSheet(
+    scope: CoroutineScope,
+    bottomSheetState: ModalBottomSheetState,
+    onClickEvent: () -> Unit) {
+    scope.launch {
+        bottomSheetState.hide()
+        onClickEvent()
+    }
+}
+
 @Composable
 fun TimerText(text: String, modifier: Modifier) {
     Text(
@@ -162,6 +195,7 @@ fun TimerText(text: String, modifier: Modifier) {
 fun DefaultPreview() {
     MainScreen(
         mainScreenEventHandler = {},
+        bottomSheetEventHandler = {},
         serviceState = MainActivity.ServiceState.Paused,
     )
 }
