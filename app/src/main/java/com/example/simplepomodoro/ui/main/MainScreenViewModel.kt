@@ -13,4 +13,8 @@ class MainScreenViewModel: ViewModel() {
     )
 
     var mutableTimerValueState by mutableStateOf(initialTimerSeconds)
+
+    fun resetTimerState() {
+        mutableTimerValueState = initialTimerSeconds
+    }
 }

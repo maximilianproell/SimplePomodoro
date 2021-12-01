@@ -46,7 +46,7 @@ fun MainScreen(
     val scaffoldState = rememberScaffoldState()
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = {true}
+        confirmStateChange = { true }
     )
     val coroutineScope = rememberCoroutineScope()
     val iconScale = remember { Animatable(0f) }
@@ -173,7 +173,8 @@ fun MainScreen(
 fun hideBottomSheet(
     scope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState,
-    onClickEvent: () -> Unit) {
+    onClickEvent: () -> Unit
+) {
     scope.launch {
         bottomSheetState.hide()
         onClickEvent()

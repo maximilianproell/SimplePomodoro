@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
                                 Intent(this, PomodoroService::class.java)
                             )
                             unbindPomodoroService()
+                            viewModel.resetTimerState()
                         }
                     }
                 }
