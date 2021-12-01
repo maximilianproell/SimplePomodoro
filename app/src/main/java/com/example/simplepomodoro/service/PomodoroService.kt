@@ -12,13 +12,13 @@ import com.example.simplepomodoro.R
 import com.example.simplepomodoro.SimplePomodoroApplication.Constants.CHANNEL_ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import timber.log.Timber
 import android.app.Notification
 import android.app.NotificationManager
 
 import android.app.PendingIntent
 import android.content.Context
 import android.text.format.DateUtils
+import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.service.PomodoroService.ServiceConstants.timerNotificationId
 
 class PomodoroService : Service() {
@@ -32,10 +32,12 @@ class PomodoroService : Service() {
     private var isTimerActive = false
     private var timerValue = Constants.initialTimerSeconds
 
-    private val _pomodoroState: MutableStateFlow<MainActivity.ServiceState> =
-        MutableStateFlow(MainActivity.ServiceState.Stopped)
+    private val _pomodoroStateFlow: MutableStateFlow<ServiceState> =
+        MutableStateFlow(ServiceState.STOPPED)
+    val pomodoroStateFlow: StateFlow<ServiceState> = _pomodoroStateFlow
 
-    val pomodoroState: StateFlow<MainActivity.ServiceState> = _pomodoroState
+    private val _timerStateFlow: MutableStateFlow<Long> = MutableStateFlow(timerValue)
+    val timerStateFlow: StateFlow<Long> = _timerStateFlow
 
     override fun onCreate() {
         super.onCreate()
@@ -49,7 +51,7 @@ class PomodoroService : Service() {
 
         startPomodoroTimer()
 
-        _pomodoroState.value = MainActivity.ServiceState.Running
+        _pomodoroStateFlow.value = ServiceState.RUNNING
 
         return START_STICKY
     }
@@ -58,7 +60,7 @@ class PomodoroService : Service() {
         super.onDestroy()
 
         stopPomodoroTimer()
-        _pomodoroState.value = MainActivity.ServiceState.Stopped
+        _pomodoroStateFlow.value = ServiceState.STOPPED
     }
 
     override fun onBind(intent: Intent?): IBinder {
@@ -111,6 +113,7 @@ class PomodoroService : Service() {
             override fun onTick(p0: Long) {
                 timerValue = p0 / 1000
                 updateNotification()
+                _timerStateFlow.value = timerValue
             }
 
             override fun onFinish() {

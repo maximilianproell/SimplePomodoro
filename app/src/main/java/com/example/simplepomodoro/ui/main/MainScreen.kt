@@ -19,8 +19,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.simplepomodoro.MainActivity
 import com.example.simplepomodoro.R
+import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.components.BottomSheetEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -42,7 +42,6 @@ fun MainScreen(
     viewModel: MainScreenViewModel = viewModel(),
     mainScreenEventHandler: (MainScreenEvent) -> Unit,
     bottomSheetEventHandler: (MainScreenBottomSheetEvent) -> Unit,
-    serviceState: MainActivity.ServiceState,
 ) {
     val scaffoldState = rememberScaffoldState()
     val bottomSheetState = rememberModalBottomSheetState(
@@ -64,7 +63,7 @@ fun MainScreen(
         )
     }
 
-    if (serviceState == MainActivity.ServiceState.Running) {
+    if (viewModel.mutableServiceState == ServiceState.RUNNING) {
         LaunchedEffect(key1 = true) {
             animateScale(targetValue = 1f)
         }
@@ -85,7 +84,7 @@ fun MainScreen(
                         scope = coroutineScope,
                         bottomSheetState = bottomSheetState,
                         onClickEvent = {
-                            // todo find out how to correclty hide that thing
+                            // todo find out how to correctly hide that thing
                             bottomSheetEventHandler(
                                 MainScreenBottomSheetEvent.OnSettingsClick
                             )
@@ -134,7 +133,7 @@ fun MainScreen(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        if (serviceState == MainActivity.ServiceState.Running) {
+                        if (viewModel.mutableServiceState == ServiceState.RUNNING) {
                             // already active: stop timer in that case
                             mainScreenEventHandler(MainScreenEvent.OnStopTimer)
                         } else {
@@ -161,7 +160,7 @@ fun MainScreen(
         ) {
             // stateless, as we don't pass the ViewModel
             TimerText(
-                text = DateUtils.formatElapsedTime(serviceState.timerValue),
+                text = DateUtils.formatElapsedTime(viewModel.mutableTimerValueState),
                 modifier = Modifier
                     .fillMaxSize(1f)
                     .wrapContentSize(),
@@ -196,6 +195,5 @@ fun DefaultPreview() {
     MainScreen(
         mainScreenEventHandler = {},
         bottomSheetEventHandler = {},
-        serviceState = MainActivity.ServiceState.Paused,
     )
 }

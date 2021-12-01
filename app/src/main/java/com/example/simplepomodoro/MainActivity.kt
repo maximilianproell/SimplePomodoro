@@ -11,28 +11,26 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.*
 import androidx.navigation.compose.rememberNavController
-import com.example.simplepomodoro.Constants.initialTimerSeconds
 import com.example.simplepomodoro.navigation.PomodoroNavHost
 import com.example.simplepomodoro.service.PomodoroService
 import com.example.simplepomodoro.ui.main.MainScreenEvent
+import com.example.simplepomodoro.ui.main.MainScreenViewModel
 import com.example.simplepomodoro.ui.theme.SimplePomodoroTheme
 import com.example.simplepomodoro.utils.launchAndCollectIn
+import kotlinx.coroutines.flow.Flow
+import timber.log.Timber
 
 object Constants {
     const val initialTimerSeconds: Long = 1500
 }
 
+enum class ServiceState {
+    RUNNING, PAUSED, STOPPED
+}
+
 class MainActivity : ComponentActivity() {
-    sealed class ServiceState {
-        object Running : ServiceState()
-        object Paused : ServiceState()
-        object Stopped : ServiceState()
-
-        val timerValue: Long = initialTimerSeconds
-    }
-
     private var pomodoroService: PomodoroService? = null
-    private val viewModel: MainActivityViewModel by viewModels()
+    private val viewModel: MainScreenViewModel by viewModels()
 
 
     /** Defines callbacks for service binding, passed to bindService()  */
@@ -41,9 +39,16 @@ class MainActivity : ComponentActivity() {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             val binder = service as PomodoroService.PomodoroServiceBinder
             pomodoroService = binder.getService()
-            pomodoroService?.pomodoroState?.let { serviceStateFlow ->
+            pomodoroService?.pomodoroStateFlow?.let { serviceStateFlow: Flow<ServiceState> ->
                 serviceStateFlow.launchAndCollectIn(this@MainActivity) { state ->
+                    Timber.i("state now is: $state")
                     viewModel.mutableServiceState = state
+                }
+            }
+
+            pomodoroService?.timerStateFlow?.let { timerStateFlow ->
+                timerStateFlow.launchAndCollectIn(this@MainActivity) {
+                    viewModel.mutableTimerValueState = it
                 }
             }
         }
@@ -72,11 +77,10 @@ class MainActivity : ComponentActivity() {
                             stopService(
                                 Intent(this, PomodoroService::class.java)
                             )
-                            unbindService(connection)
+                            unbindPomodoroService()
                         }
                     }
-                },
-                serviceState = viewModel.mutableServiceState
+                }
             )
         }
     }
@@ -98,21 +102,21 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun unbindPomodoroService() {
-        unbindService(connection)
-        pomodoroService = null
+        if (pomodoroService != null) {
+            unbindService(connection)
+            pomodoroService = null
+        }
     }
 }
 
 @Composable
 fun PomodoroApp(
     mainScreenEventHandler: (MainScreenEvent) -> Unit,
-    serviceState: MainActivity.ServiceState
 ) {
     SimplePomodoroTheme {
         val navController = rememberNavController()
         PomodoroNavHost(
             navController = navController,
-            serviceState = serviceState,
             mainScreenEventHandler = mainScreenEventHandler,
         )
     }
