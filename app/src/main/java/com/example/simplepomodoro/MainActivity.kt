@@ -9,6 +9,7 @@ import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.*
 import androidx.navigation.compose.rememberNavController
 import com.example.simplepomodoro.navigation.PomodoroNavHost
@@ -110,6 +111,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun PomodoroApp(
     mainScreenEventHandler: (MainScreenEvent) -> Unit,

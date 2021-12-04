@@ -1,5 +1,6 @@
 package com.example.simplepomodoro.navigation
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,6 +14,7 @@ import com.example.simplepomodoro.ui.main.MainScreenBottomSheetEvent
 import com.example.simplepomodoro.ui.main.MainScreenEvent
 import com.example.simplepomodoro.ui.settings.SettingsScreen
 
+@ExperimentalAnimationApi
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PomodoroNavHost(
