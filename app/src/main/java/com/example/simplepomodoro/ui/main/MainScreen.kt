@@ -23,10 +23,12 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.simplepomodoro.R
 import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.components.BottomSheetEntry
 import com.example.simplepomodoro.components.Chip
+import com.example.simplepomodoro.navigation.PomodoroScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -47,7 +49,7 @@ sealed class MainScreenBottomSheetEvent {
 fun MainScreen(
     viewModel: MainScreenViewModel = viewModel(),
     mainScreenEventHandler: (MainScreenEvent) -> Unit,
-    bottomSheetEventHandler: (MainScreenBottomSheetEvent) -> Unit,
+    navController: NavController,
 ) {
     val scaffoldState = rememberScaffoldState()
     val bottomSheetState = rememberModalBottomSheetState(
@@ -107,9 +109,7 @@ fun MainScreen(
                             bottomSheetState = bottomSheetState,
                             onClickEvent = {
                                 // todo find out how to correctly hide that thing
-                                bottomSheetEventHandler(
-                                    MainScreenBottomSheetEvent.OnSettingsClick
-                                )
+                                navController.navigate(PomodoroScreen.Settings.routeName)
                             })
                     }
                 )
@@ -121,9 +121,7 @@ fun MainScreen(
                             scope = coroutineScope,
                             bottomSheetState = bottomSheetState
                         ) {
-                            bottomSheetEventHandler(
-                                MainScreenBottomSheetEvent.OnAboutClick
-                            )
+                            // todo: navigate to about screen
                         }
                     }
                 )
@@ -153,10 +151,12 @@ fun MainScreen(
                         // The actions should be at the end of the BottomAppBar. They use the default medium
                         // content alpha provided by BottomAppBar
                         Spacer(Modifier.weight(1f, true))
-                        IconButton(onClick = { /* doSomething() */ }) {
+                        IconButton(onClick = {
+                            navController.navigate(PomodoroScreen.Statistics.routeName)
+                        }) {
                             Icon(
-                                Icons.Filled.Favorite,
-                                contentDescription = "Localized description"
+                                Icons.Filled.TrendingUp,
+                                contentDescription = "Statistics"
                             )
                         }
                     }
@@ -293,15 +293,5 @@ fun TimerText(text: String, modifier: Modifier) {
         text = text,
         modifier = modifier,
         fontSize = MaterialTheme.typography.h2.fontSize
-    )
-}
-
-@ExperimentalAnimationApi
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MainScreen(
-        mainScreenEventHandler = {},
-        bottomSheetEventHandler = {},
     )
 }

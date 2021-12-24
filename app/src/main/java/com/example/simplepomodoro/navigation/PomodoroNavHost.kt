@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.simplepomodoro.ui.StatisticsScreen
 import com.example.simplepomodoro.ui.main.MainScreen
 import com.example.simplepomodoro.ui.main.MainScreenBottomSheetEvent
 import com.example.simplepomodoro.ui.main.MainScreenEvent
@@ -38,18 +39,16 @@ fun PomodoroNavHost(
                 // instead would also be possible here
                 viewModel = viewModel(viewModelStoreOwner = mainActivityViewModelStoreOwner),
                 mainScreenEventHandler = mainScreenEventHandler,
-                bottomSheetEventHandler = { event: MainScreenBottomSheetEvent ->
-                    when (event) {
-                        MainScreenBottomSheetEvent.OnAboutClick -> TODO()
-                        MainScreenBottomSheetEvent.OnSettingsClick -> navController.navigate(
-                            PomodoroScreen.Settings.routeName
-                        )
-                    }
-                }
+                navController = navController,
             )
         }
+
         composable(route = PomodoroScreen.Settings.routeName) {
             SettingsScreen()
+        }
+
+        composable(route = PomodoroScreen.Statistics.routeName) {
+            StatisticsScreen()
         }
     }
 }
