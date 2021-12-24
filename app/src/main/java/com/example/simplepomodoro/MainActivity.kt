@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                 mainScreenEventHandler = { event ->
                     when (event) {
                         MainScreenEvent.OnPauseTimer -> {
-
+                            pomodoroService?.pausePomodoroTimer()
                         }
                         MainScreenEvent.OnStartTimer -> {
                             startService(

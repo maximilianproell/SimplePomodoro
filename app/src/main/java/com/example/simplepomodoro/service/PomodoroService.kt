@@ -20,6 +20,7 @@ import android.content.Context
 import android.text.format.DateUtils
 import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.service.PomodoroService.ServiceConstants.timerNotificationId
+import timber.log.Timber
 
 class PomodoroService : Service() {
     private object ServiceConstants {
@@ -28,8 +29,7 @@ class PomodoroService : Service() {
 
     private val binder = PomodoroServiceBinder()
 
-    private val pomodoroTimer: CountDownTimer
-    private var isTimerActive = false
+    private lateinit var pomodoroTimer: CountDownTimer
     private var timerValue = Constants.initialTimerSeconds
 
     private val _pomodoroStateFlow: MutableStateFlow<ServiceState> =
@@ -39,12 +39,10 @@ class PomodoroService : Service() {
     private val _timerStateFlow: MutableStateFlow<Long> = MutableStateFlow(timerValue)
     val timerStateFlow: StateFlow<Long> = _timerStateFlow
 
-    override fun onCreate() {
-        super.onCreate()
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+
+        Timber.d("on start command called; timerValue now is $timerValue")
 
         val notification = getMyActivityNotification(timeLeft = timerValue)
         startForeground(timerNotificationId, notification)
@@ -99,17 +97,24 @@ class PomodoroService : Service() {
     }
 
     private fun startPomodoroTimer() {
+        // make sure we recreate the timer every time so pausing is possible
+        // (we don't want to lose the timer value)
+        pomodoroTimer = buildPomodoroTimer()
+
         pomodoroTimer.start()
-        isTimerActive = true
     }
 
     private fun stopPomodoroTimer() {
         pomodoroTimer.cancel()
-        isTimerActive = false
     }
 
-    init {
-        pomodoroTimer = object : CountDownTimer(Constants.initialTimerSeconds * 1000, 1000) {
+    fun pausePomodoroTimer() {
+        pomodoroTimer.cancel()
+        _pomodoroStateFlow.value = ServiceState.PAUSED
+    }
+
+    private fun buildPomodoroTimer(): CountDownTimer {
+        return object : CountDownTimer(timerValue * 1000, 1000) {
             override fun onTick(p0: Long) {
                 timerValue = p0 / 1000
                 updateNotification()
@@ -117,7 +122,6 @@ class PomodoroService : Service() {
             }
 
             override fun onFinish() {
-                isTimerActive = false
             }
         }
     }

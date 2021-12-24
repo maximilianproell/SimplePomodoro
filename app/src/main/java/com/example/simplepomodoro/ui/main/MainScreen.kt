@@ -55,8 +55,7 @@ fun MainScreen(
     val coroutineScope = rememberCoroutineScope()
     val iconScale = remember { Animatable(0f) }
 
-
-    var expandedState by remember { mutableStateOf(false) }
+    var miniFabExpandedState by remember { mutableStateOf(false) }
 
     suspend fun animateScale(targetValue: Float) {
         iconScale.animateTo(
@@ -167,13 +166,11 @@ fun MainScreen(
                             .wrapContentSize(),
                         onClick = {
                             if (viewModel.mutableServiceState == ServiceState.RUNNING) {
-                                // already active: stop timer in that case
-                                mainScreenEventHandler(MainScreenEvent.OnStopTimer)
+                                miniFabExpandedState = !miniFabExpandedState
                             } else {
                                 // start timer
                                 mainScreenEventHandler(MainScreenEvent.OnStartTimer)
                             }
-                            expandedState = !expandedState
                         }
                     ) {
                         Icon(
@@ -181,11 +178,23 @@ fun MainScreen(
                             contentDescription = stringResource(id = R.string.startPomodoroTimer),
                             modifier = Modifier.scale(1 - iconScale.value)
                         )
-                        Icon(
-                            Icons.Filled.Stop,
-                            contentDescription = stringResource(id = R.string.stopPomodoroTimer),
-                            modifier = Modifier.scale(iconScale.value)
-                        )
+
+                        // todo this could have its own animation
+
+                        if (miniFabExpandedState) {
+                            Icon(
+                                Icons.Filled.Clear,
+                                contentDescription = stringResource(id = R.string.stopPomodoroTimer),
+                                modifier = Modifier.scale(iconScale.value)
+                            )
+                        } else {
+                            Icon(
+                                Icons.Filled.Stop,
+                                contentDescription = stringResource(id = R.string.stopPomodoroTimer),
+                                modifier = Modifier.scale(iconScale.value)
+                            )
+                        }
+
                     }
                 },
                 isFloatingActionButtonDocked = true,
@@ -200,13 +209,27 @@ fun MainScreen(
                 )
             }
         }
-        MiniFabs(expandedState = expandedState)
+        PomodoroMiniFabs(
+            expandedState = miniFabExpandedState,
+            onStopClick = {
+                mainScreenEventHandler(MainScreenEvent.OnStopTimer)
+                miniFabExpandedState = false
+            },
+            onPauseClick = {
+                mainScreenEventHandler(MainScreenEvent.OnPauseTimer)
+                miniFabExpandedState = false
+            }
+        )
     }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MiniFabs(expandedState: Boolean) {
+fun PomodoroMiniFabs(
+    expandedState: Boolean,
+    onStopClick: () -> Unit,
+    onPauseClick: () -> Unit,
+) {
     AnimatedVisibility(
         modifier = Modifier
             .wrapContentSize()
@@ -219,20 +242,22 @@ fun MiniFabs(expandedState: Boolean) {
             FloatingActionButton(
                 modifier = Modifier.size(56.dp),
                 onClick = {
+                    onPauseClick()
                 }
             ) {
                 Icon(
-                    Icons.Filled.AccountBox,
+                    Icons.Filled.Pause,
                     contentDescription = stringResource(id = R.string.startPomodoroTimer),
                 )
             }
 
             FloatingActionButton(
                 onClick = {
+                    onStopClick()
                 }
             ) {
                 Icon(
-                    Icons.Filled.AddAlarm,
+                    Icons.Filled.Stop,
                     contentDescription = stringResource(id = R.string.startPomodoroTimer),
                 )
             }
