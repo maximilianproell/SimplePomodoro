@@ -11,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.simplepomodoro.ui.StatisticsScreen
 import com.example.simplepomodoro.ui.main.MainScreen
-import com.example.simplepomodoro.ui.main.MainScreenBottomSheetEvent
 import com.example.simplepomodoro.ui.main.MainScreenEvent
 import com.example.simplepomodoro.ui.settings.SettingsScreen
 

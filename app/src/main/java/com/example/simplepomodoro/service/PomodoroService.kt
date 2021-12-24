@@ -29,7 +29,7 @@ class PomodoroService : Service() {
 
     private val binder = PomodoroServiceBinder()
 
-    private lateinit var pomodoroTimer: CountDownTimer
+    private var pomodoroTimer: CountDownTimer? = null
     private var timerValue = Constants.initialTimerSeconds
 
     private val _pomodoroStateFlow: MutableStateFlow<ServiceState> =
@@ -101,15 +101,15 @@ class PomodoroService : Service() {
         // (we don't want to lose the timer value)
         pomodoroTimer = buildPomodoroTimer()
 
-        pomodoroTimer.start()
+        pomodoroTimer?.start()
     }
 
     private fun stopPomodoroTimer() {
-        pomodoroTimer.cancel()
+        pomodoroTimer?.cancel()
     }
 
     fun pausePomodoroTimer() {
-        pomodoroTimer.cancel()
+        pomodoroTimer?.cancel()
         _pomodoroStateFlow.value = ServiceState.PAUSED
     }
 
