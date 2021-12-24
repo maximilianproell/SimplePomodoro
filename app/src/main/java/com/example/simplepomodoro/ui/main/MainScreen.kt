@@ -12,6 +12,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.layoutId
@@ -25,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.simplepomodoro.R
 import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.components.BottomSheetEntry
+import com.example.simplepomodoro.components.Chip
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -200,13 +202,21 @@ fun MainScreen(
                 isFloatingActionButtonDocked = true,
                 floatingActionButtonPosition = FabPosition.Center,
             ) {
-                // stateless, as we don't pass the ViewModel
-                TimerText(
-                    text = DateUtils.formatElapsedTime(viewModel.mutableTimerValueState),
+
+                Column(
                     modifier = Modifier
-                        .fillMaxSize(1f)
-                        .wrapContentSize(),
-                )
+                        .fillMaxSize(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    TimerText(
+                        text = DateUtils.formatElapsedTime(viewModel.mutableTimerValueState),
+                        modifier = Modifier
+                            .wrapContentSize(),
+                    )
+
+                    Chip(name = stringResource(id = R.string.no_label))
+                }
             }
         }
         PomodoroMiniFabs(
