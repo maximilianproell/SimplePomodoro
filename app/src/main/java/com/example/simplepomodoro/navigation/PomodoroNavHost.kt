@@ -4,8 +4,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,7 +36,7 @@ fun PomodoroNavHost(
                 // in the MainActivity
                 // using CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner)
                 // instead would also be possible here
-                viewModel = viewModel(viewModelStoreOwner = mainActivityViewModelStoreOwner),
+                viewModel = hiltViewModel(viewModelStoreOwner = mainActivityViewModelStoreOwner),
                 mainScreenEventHandler = mainScreenEventHandler,
                 navController = navController,
             )

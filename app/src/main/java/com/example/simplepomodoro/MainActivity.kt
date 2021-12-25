@@ -35,7 +35,6 @@ class MainActivity : ComponentActivity() {
     private var pomodoroService: PomodoroService? = null
     private val viewModel: MainScreenViewModel by viewModels()
 
-
     /** Defines callbacks for service binding, passed to bindService()  */
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {

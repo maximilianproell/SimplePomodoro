@@ -6,8 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.simplepomodoro.Constants.initialTimerSeconds
 import com.example.simplepomodoro.ServiceState
+import com.example.simplepomodoro.data.DataRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class MainScreenViewModel: ViewModel() {
+@HiltViewModel
+class MainScreenViewModel @Inject constructor(
+    private val repository: DataRepository
+): ViewModel() {
     var mutableServiceState by mutableStateOf(
         ServiceState.STOPPED
     )
