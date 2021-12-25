@@ -20,5 +20,6 @@ import java.time.LocalDateTime
 data class WorkPackageEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val labelName: String?,
+    val secondsWorked: Long,
     val date: LocalDateTime
 )

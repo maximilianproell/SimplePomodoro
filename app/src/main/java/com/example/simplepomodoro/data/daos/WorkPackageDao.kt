@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface WorkPackageDao {
     @Insert
-    fun insertWorkPackage(workPackageEntity: WorkPackageEntity)
+    suspend fun insertWorkPackage(workPackageEntity: WorkPackageEntity)
 
     @Query("SELECT * FROM work_package_table WHERE labelName = :labelName")
     fun getAllWorkPackagesWithLabelAsFlow(labelName: String): Flow<List<WorkPackageEntity>>

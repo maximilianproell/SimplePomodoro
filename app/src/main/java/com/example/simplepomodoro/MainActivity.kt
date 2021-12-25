@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 
 object Constants {
-    const val initialTimerSeconds: Long = 1500
+    const val initialTimerSeconds: Long = 5
 }
 
 enum class ServiceState {

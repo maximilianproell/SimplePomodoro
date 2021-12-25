@@ -1,28 +1,39 @@
 package com.example.simplepomodoro.service
 
-import android.app.Service
+import android.app.Notification
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.CountDownTimer
 import android.os.IBinder
+import android.text.format.DateUtils
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.lifecycleScope
 import com.example.simplepomodoro.Constants
 import com.example.simplepomodoro.MainActivity
 import com.example.simplepomodoro.R
+import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.SimplePomodoroApplication.Constants.CHANNEL_ID
+import com.example.simplepomodoro.data.DataRepository
+import com.example.simplepomodoro.data.entities.WorkPackageEntity
+import com.example.simplepomodoro.service.PomodoroService.ServiceConstants.timerNotificationId
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import android.app.Notification
-import android.app.NotificationManager
-
-import android.app.PendingIntent
-import android.content.Context
-import android.text.format.DateUtils
-import com.example.simplepomodoro.ServiceState
-import com.example.simplepomodoro.service.PomodoroService.ServiceConstants.timerNotificationId
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.LocalDateTime
+import javax.inject.Inject
 
-class PomodoroService : Service() {
+@AndroidEntryPoint
+class PomodoroService : LifecycleService() {
+    @Inject
+    lateinit var repository: DataRepository
+
     private object ServiceConstants {
         const val timerNotificationId = 1
     }
@@ -38,6 +49,8 @@ class PomodoroService : Service() {
 
     private val _timerStateFlow: MutableStateFlow<Long> = MutableStateFlow(timerValue)
     val timerStateFlow: StateFlow<Long> = _timerStateFlow
+
+    val currentlySetLabel: String? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
@@ -58,10 +71,10 @@ class PomodoroService : Service() {
         super.onDestroy()
 
         stopPomodoroTimer()
-        _pomodoroStateFlow.value = ServiceState.STOPPED
     }
 
-    override fun onBind(intent: Intent?): IBinder {
+    override fun onBind(intent: Intent): IBinder {
+        super.onBind(intent)
         return binder
     }
 
@@ -106,6 +119,7 @@ class PomodoroService : Service() {
 
     private fun stopPomodoroTimer() {
         pomodoroTimer?.cancel()
+        _pomodoroStateFlow.value = ServiceState.STOPPED
     }
 
     fun pausePomodoroTimer() {
@@ -122,6 +136,17 @@ class PomodoroService : Service() {
             }
 
             override fun onFinish() {
+                this@PomodoroService.lifecycleScope.launch(Dispatchers.IO) {
+                    repository.insertWorkPackage(
+                        WorkPackageEntity(
+                            labelName = currentlySetLabel,
+                            secondsWorked = Constants.initialTimerSeconds,
+                            date = LocalDateTime.now()
+                        )
+                    )
+                }
+
+                stopPomodoroTimer()
             }
         }
     }

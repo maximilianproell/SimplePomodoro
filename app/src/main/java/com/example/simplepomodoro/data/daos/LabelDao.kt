@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface LabelDao {
     @Insert
-    fun insertLabel(label: LabelEntity)
+    suspend fun insertLabel(label: LabelEntity)
 
     @Delete
-    fun deleteLabel(label: LabelEntity)
+    suspend fun deleteLabel(label: LabelEntity)
 
     @Query("SELECT * FROM label_table")
     fun getAllLabelsAsFlow(): Flow<List<LabelEntity>>

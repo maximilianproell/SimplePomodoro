@@ -5,6 +5,8 @@ import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -12,12 +14,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
@@ -27,9 +33,11 @@ import com.example.simplepomodoro.R
 import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.components.BottomSheetEntry
 import com.example.simplepomodoro.components.Chip
+import com.example.simplepomodoro.data.entities.LabelEntity
 import com.example.simplepomodoro.navigation.PomodoroScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 sealed class MainScreenEvent {
     object OnPauseTimer : MainScreenEvent()
@@ -53,6 +61,7 @@ fun MainScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var miniFabExpandedState by remember { mutableStateOf(false) }
+    var showLabelDialog by remember { mutableStateOf(false) }
 
     val mainFabIconScale = animateFloatAsState(
         targetValue = if (viewModel.mutableServiceState == ServiceState.RUNNING) 1f else 0f,
@@ -194,31 +203,29 @@ fun MainScreen(
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize(1f),
+                        .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .alpha(timerOpacityAnimation),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        TimerText(
-                            text = DateUtils.formatElapsedTime(viewModel.mutableTimerValueState),
-                            modifier = Modifier
-                        )
+                    TimerAndReset(
+                        timerOpacityAnimation = timerOpacityAnimation,
+                        isResetVisible = viewModel.mutableServiceState == ServiceState.PAUSED,
+                        onResetIconClick = { mainScreenEventHandler(MainScreenEvent.OnStopTimer) },
+                        timerSecondsLeft = viewModel.mutableTimerValueState
+                    )
 
-                        ResetIcon(
-                            modifier = Modifier.size(56.dp),
-                            isVisible = viewModel.mutableServiceState == ServiceState.PAUSED,
-                            onResetIconClick = {
-                                mainScreenEventHandler(MainScreenEvent.OnStopTimer)
-                            }
-                        )
-                    }
-
-                    Chip(name = stringResource(id = R.string.no_label))
+                    Chip(
+                        name = stringResource(id = R.string.no_label),
+                        onChipClicked = {
+                            Timber.d("on chip clicked")
+                            showLabelDialog = true
+                        }
+                    )
+                    LabelDialog(
+                        showDialog = showLabelDialog,
+                        onDismiss = { showLabelDialog = false },
+                        labels = listOf(LabelEntity(name = "test"))
+                    )
                 }
             }
         }
@@ -232,6 +239,32 @@ fun MainScreen(
                 mainScreenEventHandler(MainScreenEvent.OnPauseTimer)
                 miniFabExpandedState = false
             }
+        )
+    }
+}
+
+@Composable
+private fun TimerAndReset(
+    timerOpacityAnimation: Float,
+    isResetVisible: Boolean,
+    onResetIconClick: () -> Unit,
+    timerSecondsLeft: Long
+) {
+    Row(
+        modifier = Modifier
+            .wrapContentSize()
+            .alpha(timerOpacityAnimation),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TimerText(
+            text = DateUtils.formatElapsedTime(timerSecondsLeft),
+            modifier = Modifier
+        )
+
+        ResetIcon(
+            modifier = Modifier.size(56.dp),
+            isVisible = isResetVisible,
+            onResetIconClick = onResetIconClick
         )
     }
 }
@@ -316,6 +349,52 @@ fun ResetIcon(
                 imageVector = Icons.Filled.Replay,
                 contentDescription = "Reset timer"
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun LabelDialog(
+    showDialog: Boolean, onDismiss: () -> Unit,
+    labels: List<LabelEntity>
+) {
+    if (showDialog) {
+        Dialog(
+            onDismissRequest = {
+                onDismiss()
+            },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = true,
+                dismissOnBackPress = true
+            )
+        ) {
+            Surface(
+                modifier = Modifier.wrapContentHeight(),
+                shape = RoundedCornerShape(16.dp),
+                color = Color.LightGray
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    LazyColumn {
+                        items(labels) { label ->
+                            Chip(
+                                name = label.name
+                            )
+                        }
+                    }
+                    Row {
+                        TextButton(onClick = { onDismiss() }) {
+                            Text(stringResource(id = R.string.cancel))
+                        }
+                        TextButton(onClick = { /*TODO*/ }) {
+                            Text("OK")
+                        }
+                    }
+                }
+            }
         }
     }
 }
