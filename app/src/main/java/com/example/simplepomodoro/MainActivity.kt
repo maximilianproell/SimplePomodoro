@@ -18,6 +18,7 @@ import com.example.simplepomodoro.ui.main.MainScreenEvent
 import com.example.simplepomodoro.ui.main.MainScreenViewModel
 import com.example.simplepomodoro.ui.theme.SimplePomodoroTheme
 import com.example.simplepomodoro.utils.launchAndCollectIn
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 
@@ -29,6 +30,7 @@ enum class ServiceState {
     RUNNING, PAUSED, STOPPED
 }
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private var pomodoroService: PomodoroService? = null
     private val viewModel: MainScreenViewModel by viewModels()

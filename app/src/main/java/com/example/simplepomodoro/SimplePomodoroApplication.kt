@@ -6,9 +6,11 @@ import android.app.NotificationManager
 import android.os.Build
 import com.example.simplepomodoro.SimplePomodoroApplication.Constants.CHANNEL_ID
 import com.example.simplepomodoro.SimplePomodoroApplication.Constants.SERVICE_CHANNEL_NAME
+import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
+@HiltAndroidApp
 class SimplePomodoroApplication: Application() {
     object Constants {
         const val CHANNEL_ID = "simple_pomodoro_service_id"
