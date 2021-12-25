@@ -3,8 +3,7 @@ package com.example.simplepomodoro.ui.main
 import android.text.format.DateUtils
 import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.*
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +13,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.stringResource
@@ -54,13 +54,22 @@ fun MainScreen(
 
     var miniFabExpandedState by remember { mutableStateOf(false) }
 
-    val iconScale = animateFloatAsState(
+    val mainFabIconScale = animateFloatAsState(
         targetValue = if (viewModel.mutableServiceState == ServiceState.RUNNING) 1f else 0f,
         animationSpec = tween(
             durationMillis = 500,
             easing = {
                 OvershootInterpolator(5f).getInterpolation(it)
             }
+        )
+    )
+
+    val timerOpacityAnimation by rememberInfiniteTransition().animateFloat(
+        initialValue = 1f,
+        targetValue = if (viewModel.mutableServiceState == ServiceState.PAUSED) .4f else 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
         )
     )
 
@@ -159,7 +168,7 @@ fun MainScreen(
                         Icon(
                             Icons.Filled.PlayArrow,
                             contentDescription = stringResource(id = R.string.startPomodoroTimer),
-                            modifier = Modifier.scale(1 - iconScale.value)
+                            modifier = Modifier.scale(1 - mainFabIconScale.value)
                         )
 
                         // todo this could have its own animation
@@ -168,13 +177,13 @@ fun MainScreen(
                             Icon(
                                 Icons.Filled.Clear,
                                 contentDescription = stringResource(id = R.string.stopPomodoroTimer),
-                                modifier = Modifier.scale(iconScale.value)
+                                modifier = Modifier.scale(mainFabIconScale.value)
                             )
                         } else {
                             Icon(
                                 Icons.Filled.Stop,
                                 contentDescription = stringResource(id = R.string.stopPomodoroTimer),
-                                modifier = Modifier.scale(iconScale.value)
+                                modifier = Modifier.scale(mainFabIconScale.value)
                             )
                         }
 
@@ -191,7 +200,8 @@ fun MainScreen(
                 ) {
                     Row(
                         modifier = Modifier
-                            .wrapContentSize(),
+                            .wrapContentSize()
+                            .alpha(timerOpacityAnimation),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         TimerText(
