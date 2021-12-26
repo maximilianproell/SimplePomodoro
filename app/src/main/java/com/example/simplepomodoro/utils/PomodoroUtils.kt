@@ -1,5 +1,6 @@
 package com.example.simplepomodoro.utils
 
+import androidx.compose.ui.graphics.Color
 import com.example.simplepomodoro.Constants
 
 /**
@@ -10,4 +11,13 @@ import com.example.simplepomodoro.Constants
 fun convertLabelNameToDisplayName(labelName: String, noLabelName: String): String {
     return if (labelName == Constants.noLabelLabel) noLabelName
     else labelName
+}
+
+fun Color.toLegacyInt(): Int {
+    return android.graphics.Color.argb(
+        (alpha * 255F + .5F).toInt(),
+        (red * 255F + .5F).toInt(),
+        (green * 255F + .5F).toInt(),
+        (blue * 255F + .5F).toInt()
+    )
 }
