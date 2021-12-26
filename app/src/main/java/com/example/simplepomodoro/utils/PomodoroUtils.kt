@@ -1,7 +1,6 @@
 package com.example.simplepomodoro.utils
 
-import androidx.compose.ui.res.stringResource
-import com.example.simplepomodoro.R
+import com.example.simplepomodoro.Constants
 
 /**
  * This helper function converts the given label name to the right name, which should be displayed.
@@ -9,6 +8,6 @@ import com.example.simplepomodoro.R
  * languages are used.
  */
 fun convertLabelNameToDisplayName(labelName: String, noLabelName: String): String {
-    return if (labelName == "no-label") noLabelName
+    return if (labelName == Constants.noLabelLabel) noLabelName
     else labelName
 }

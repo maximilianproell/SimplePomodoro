@@ -50,8 +50,6 @@ class PomodoroService : LifecycleService() {
     private val _timerStateFlow: MutableStateFlow<Long> = MutableStateFlow(timerValue)
     val timerStateFlow: StateFlow<Long> = _timerStateFlow
 
-    val currentlySetLabel: String? = null
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
@@ -120,6 +118,13 @@ class PomodoroService : LifecycleService() {
     private fun stopPomodoroTimer() {
         pomodoroTimer?.cancel()
         _pomodoroStateFlow.value = ServiceState.STOPPED
+
+        resetTimer()
+    }
+
+    private fun resetTimer() {
+        timerValue = Constants.initialTimerSeconds
+        _timerStateFlow.value = timerValue
     }
 
     fun pausePomodoroTimer() {
@@ -137,6 +142,19 @@ class PomodoroService : LifecycleService() {
 
             override fun onFinish() {
                 this@PomodoroService.lifecycleScope.launch(Dispatchers.IO) {
+                    val sharedPref = getSharedPreferences(
+                        Constants.sharedPrefIdentifier,
+                        MODE_PRIVATE
+                    )
+
+                    val currentlySetLabel = sharedPref.getString(
+                        Constants.currentLabelSharedPref,
+                        Constants.noLabelLabel
+                    )
+
+                    Timber.d("inserting finished work package to DB\n" +
+                            "seconds worked: ${Constants.initialTimerSeconds}\n" +
+                            "label: $currentlySetLabel")
                     repository.insertWorkPackage(
                         WorkPackageEntity(
                             labelName = currentlySetLabel,

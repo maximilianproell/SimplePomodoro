@@ -30,6 +30,7 @@ import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.simplepomodoro.Constants
 import com.example.simplepomodoro.Constants.currentLabelSharedPref
 import com.example.simplepomodoro.Constants.sharedPrefIdentifier
 import com.example.simplepomodoro.R
@@ -71,7 +72,7 @@ fun MainScreen(
     )
 
     var currentlySetLabel by remember {
-        mutableStateOf(sharedPref.getString(currentLabelSharedPref, "no-label")!!)
+        mutableStateOf(sharedPref.getString(currentLabelSharedPref, Constants.noLabelLabel)!!)
     }
 
     val allLabels by viewModel.allLabelsFlow.collectAsState(initial = emptyList())

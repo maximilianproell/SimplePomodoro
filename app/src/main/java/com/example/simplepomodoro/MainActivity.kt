@@ -26,6 +26,8 @@ object Constants {
     const val initialTimerSeconds: Long = 5
     const val sharedPrefIdentifier = "com.example.simplepomodoro.shared.pref"
     const val currentLabelSharedPref = "shared_pref_curr_label"
+
+    const val noLabelLabel = "no-label"
 }
 
 enum class ServiceState {
