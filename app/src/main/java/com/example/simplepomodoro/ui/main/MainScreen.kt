@@ -1,5 +1,6 @@
 package com.example.simplepomodoro.ui.main
 
+import android.content.Context
 import android.text.format.DateUtils
 import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.*
@@ -18,8 +19,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -29,15 +30,17 @@ import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.simplepomodoro.Constants.currentLabelSharedPref
+import com.example.simplepomodoro.Constants.sharedPrefIdentifier
 import com.example.simplepomodoro.R
 import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.components.BottomSheetEntry
 import com.example.simplepomodoro.components.Chip
 import com.example.simplepomodoro.data.entities.LabelEntity
 import com.example.simplepomodoro.navigation.PomodoroScreen
+import com.example.simplepomodoro.utils.convertLabelNameToDisplayName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 sealed class MainScreenEvent {
     object OnPauseTimer : MainScreenEvent()
@@ -62,6 +65,16 @@ fun MainScreen(
 
     var miniFabExpandedState by remember { mutableStateOf(false) }
     var showLabelDialog by remember { mutableStateOf(false) }
+
+    val sharedPref = LocalContext.current.getSharedPreferences(
+        sharedPrefIdentifier, Context.MODE_PRIVATE
+    )
+
+    var currentlySetLabel by remember {
+        mutableStateOf(sharedPref.getString(currentLabelSharedPref, "no-label")!!)
+    }
+
+    val allLabels by viewModel.allLabelsFlow.collectAsState(initial = emptyList())
 
     val mainFabIconScale = animateFloatAsState(
         targetValue = if (viewModel.mutableServiceState == ServiceState.RUNNING) 1f else 0f,
@@ -180,8 +193,6 @@ fun MainScreen(
                             modifier = Modifier.scale(1 - mainFabIconScale.value)
                         )
 
-                        // todo this could have its own animation
-
                         if (miniFabExpandedState) {
                             Icon(
                                 Icons.Filled.Clear,
@@ -215,16 +226,26 @@ fun MainScreen(
                     )
 
                     Chip(
-                        name = stringResource(id = R.string.no_label),
-                        onChipClicked = {
-                            Timber.d("on chip clicked")
+                        name = convertLabelNameToDisplayName(
+                            labelName = currentlySetLabel,
+                            noLabelName = stringResource(id = R.string.no_label)
+                        ),
+                        onSelectionChanged = {
                             showLabelDialog = true
-                        }
+                        },
                     )
                     LabelDialog(
                         showDialog = showLabelDialog,
                         onDismiss = { showLabelDialog = false },
-                        labels = listOf(LabelEntity(name = "test"))
+                        labels = allLabels,
+                        currentlySetLabel = currentlySetLabel,
+                        onLabelChanged = { newLabel ->
+                            currentlySetLabel = newLabel
+                            sharedPref
+                                .edit()
+                                .putString(currentLabelSharedPref, newLabel)
+                                .apply()
+                        }
                     )
                 }
             }
@@ -357,8 +378,11 @@ fun ResetIcon(
 @Composable
 fun LabelDialog(
     showDialog: Boolean, onDismiss: () -> Unit,
-    labels: List<LabelEntity>
+    labels: List<LabelEntity>,
+    currentlySetLabel: String,
+    onLabelChanged: (String) -> Unit = {}
 ) {
+    var temporarilySetLabel by remember { mutableStateOf(currentlySetLabel) }
     if (showDialog) {
         Dialog(
             onDismissRequest = {
@@ -372,25 +396,40 @@ fun LabelDialog(
             Surface(
                 modifier = Modifier.wrapContentHeight(),
                 shape = RoundedCornerShape(16.dp),
-                color = Color.LightGray
+                color = MaterialTheme.colors.background
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    LazyColumn {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         items(labels) { label ->
                             Chip(
-                                name = label.name
+                                name = label.name,
+                                isSelected = label.name == temporarilySetLabel,
+                                onSelectionChanged = {
+                                    temporarilySetLabel = it
+                                }
                             )
                         }
                     }
                     Row {
                         TextButton(onClick = { onDismiss() }) {
-                            Text(stringResource(id = R.string.cancel))
+                            Text(
+                                stringResource(id = R.string.cancel),
+                                color = MaterialTheme.colors.onBackground
+                            )
                         }
-                        TextButton(onClick = { /*TODO*/ }) {
-                            Text("OK")
+                        TextButton(onClick = {
+                            onLabelChanged(temporarilySetLabel)
+                            onDismiss()
+                        }) {
+                            Text(
+                                "OK",
+                                color = MaterialTheme.colors.onBackground
+                            )
                         }
                     }
                 }

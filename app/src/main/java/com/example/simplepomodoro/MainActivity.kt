@@ -24,6 +24,8 @@ import timber.log.Timber
 
 object Constants {
     const val initialTimerSeconds: Long = 5
+    const val sharedPrefIdentifier = "com.example.simplepomodoro.shared.pref"
+    const val currentLabelSharedPref = "shared_pref_curr_label"
 }
 
 enum class ServiceState {
