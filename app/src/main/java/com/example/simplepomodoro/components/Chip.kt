@@ -1,5 +1,9 @@
 package com.example.simplepomodoro.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -31,7 +35,10 @@ fun ChipPreview() {
     }
 }
 
-@kotlin.OptIn(ExperimentalMaterialApi::class)
+@kotlin.OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalAnimationApi::class
+)
 @Composable
 fun Chip(
     name: String = "Chip",
@@ -54,7 +61,11 @@ fun Chip(
             horizontalArrangement = Arrangement.spacedBy(2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (isSelected) {
+            AnimatedVisibility(
+                visible = isSelected,
+                enter = expandIn(expandFrom = Alignment.Center),
+                exit = shrinkOut(shrinkTowards = Alignment.Center)
+            ) {
                 Icon(
                     imageVector = Icons.Filled.CheckCircleOutline,
                     contentDescription = null,
