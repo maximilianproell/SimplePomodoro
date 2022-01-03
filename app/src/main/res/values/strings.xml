@@ -6,4 +6,6 @@
     <string name="about">About</string>
     <string name="no_label">No Label</string>
     <string name="cancel">Cancel</string>
+    <string name="chose_label">Chose label</string>
+    <string name="edit_labels">Edit labels</string>
 </resources>

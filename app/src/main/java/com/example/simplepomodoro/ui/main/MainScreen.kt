@@ -53,7 +53,7 @@ sealed class MainScreenEvent {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainScreen(
-    viewModel: MainScreenViewModel = viewModel(),
+    viewModel: MainScreenViewModel,
     mainScreenEventHandler: (MainScreenEvent) -> Unit,
     navController: NavController,
 ) {
@@ -246,6 +246,9 @@ fun MainScreen(
                                 .edit()
                                 .putString(currentLabelSharedPref, newLabel)
                                 .apply()
+                        },
+                        onEditLabelsClicked = {
+                            navController.navigate(PomodoroScreen.Labels.routeName)
                         }
                     )
                 }
@@ -381,7 +384,8 @@ fun LabelDialog(
     showDialog: Boolean, onDismiss: () -> Unit,
     labels: List<LabelEntity>,
     currentlySetLabel: String,
-    onLabelChanged: (String) -> Unit = {}
+    onLabelChanged: (String) -> Unit = {},
+    onEditLabelsClicked: () -> Unit = {}
 ) {
     var temporarilySetLabel by remember { mutableStateOf(currentlySetLabel) }
     if (showDialog) {
@@ -395,7 +399,9 @@ fun LabelDialog(
             )
         ) {
             Surface(
-                modifier = Modifier.wrapContentHeight(),
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 color = MaterialTheme.colors.background
             ) {
@@ -403,7 +409,28 @@ fun LabelDialog(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.chose_label),
+                            style = MaterialTheme.typography.h6
+                        )
+
+                        IconButton(onClick = {
+                            onEditLabelsClicked()
+                            onDismiss()
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Create,
+                                contentDescription = stringResource(id = R.string.edit_labels)
+                            )
+                        }
+                    }
                     LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(labels) { label ->
@@ -416,7 +443,10 @@ fun LabelDialog(
                             )
                         }
                     }
-                    Row {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         TextButton(onClick = { onDismiss() }) {
                             Text(
                                 stringResource(id = R.string.cancel),

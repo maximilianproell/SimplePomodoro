@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.simplepomodoro.labels.LabelManagerScreen
 import com.example.simplepomodoro.ui.StatisticsScreen
 import com.example.simplepomodoro.ui.main.MainScreen
 import com.example.simplepomodoro.ui.main.MainScreenEvent
@@ -48,6 +49,13 @@ fun PomodoroNavHost(
 
         composable(route = PomodoroScreen.Statistics.routeName) {
             StatisticsScreen()
+        }
+
+        composable(route = PomodoroScreen.Labels.routeName) {
+            LabelManagerScreen(
+                viewModel = hiltViewModel(),
+                navController = navController
+            )
         }
     }
 }
