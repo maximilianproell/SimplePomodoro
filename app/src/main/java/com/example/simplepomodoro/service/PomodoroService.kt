@@ -115,11 +115,13 @@ class PomodoroService : LifecycleService() {
         pomodoroTimer?.start()
     }
 
-    private fun stopPomodoroTimer() {
+    fun stopPomodoroTimer() {
         pomodoroTimer?.cancel()
         _pomodoroStateFlow.value = ServiceState.STOPPED
 
         resetTimer()
+
+        stopForeground(true)
     }
 
     private fun resetTimer() {

@@ -66,6 +66,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        actionBar?.hide()
+
         setContent {
             PomodoroApp(
                 mainScreenEventHandler = { event ->
@@ -80,9 +83,7 @@ class MainActivity : ComponentActivity() {
                             bindPomodoroService()
                         }
                         MainScreenEvent.OnStopTimer -> {
-                            stopService(
-                                Intent(this, PomodoroService::class.java)
-                            )
+                            pomodoroService?.stopPomodoroTimer()
                             unbindPomodoroService()
                             viewModel.resetTimerState()
                         }
