@@ -37,6 +37,7 @@ import com.example.simplepomodoro.R
 import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.components.BottomSheetEntry
 import com.example.simplepomodoro.components.Chip
+import com.example.simplepomodoro.components.PomodoroDialog
 import com.example.simplepomodoro.data.entities.LabelEntity
 import com.example.simplepomodoro.navigation.PomodoroScreen
 import com.example.simplepomodoro.utils.convertLabelNameToDisplayName
@@ -381,88 +382,75 @@ fun ResetIcon(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LabelDialog(
-    showDialog: Boolean, onDismiss: () -> Unit,
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
     labels: List<LabelEntity>,
     currentlySetLabel: String,
     onLabelChanged: (String) -> Unit = {},
     onEditLabelsClicked: () -> Unit = {}
 ) {
     var temporarilySetLabel by remember { mutableStateOf(currentlySetLabel) }
-    if (showDialog) {
-        Dialog(
-            onDismissRequest = {
-                onDismiss()
-            },
-            properties = DialogProperties(
-                usePlatformDefaultWidth = true,
-                dismissOnBackPress = true
-            )
-        ) {
-            Surface(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colors.background
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.chose_label),
-                            style = MaterialTheme.typography.h6
-                        )
 
-                        IconButton(onClick = {
-                            onEditLabelsClicked()
-                            onDismiss()
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.Create,
-                                contentDescription = stringResource(id = R.string.edit_labels)
-                            )
+    PomodoroDialog(
+        showDialog = showDialog,
+        onDismiss = onDismiss,
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.chose_label),
+                    style = MaterialTheme.typography.h6
+                )
+
+                IconButton(onClick = {
+                    onEditLabelsClicked()
+                    onDismiss()
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.Create,
+                        contentDescription = stringResource(id = R.string.edit_labels)
+                    )
+                }
+            }
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(labels) { label ->
+                    Chip(
+                        name = label.name,
+                        isSelected = label.name == temporarilySetLabel,
+                        onSelectionChanged = {
+                            temporarilySetLabel = it
                         }
-                    }
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(labels) { label ->
-                            Chip(
-                                name = label.name,
-                                isSelected = label.name == temporarilySetLabel,
-                                onSelectionChanged = {
-                                    temporarilySetLabel = it
-                                }
-                            )
-                        }
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        TextButton(onClick = { onDismiss() }) {
-                            Text(
-                                stringResource(id = R.string.cancel),
-                                color = MaterialTheme.colors.onBackground
-                            )
-                        }
-                        TextButton(onClick = {
-                            onLabelChanged(temporarilySetLabel)
-                            onDismiss()
-                        }) {
-                            Text(
-                                "OK",
-                                color = MaterialTheme.colors.onBackground
-                            )
-                        }
-                    }
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TextButton(onClick = { onDismiss() }) {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        color = MaterialTheme.colors.onBackground
+                    )
+                }
+                TextButton(onClick = {
+                    onLabelChanged(temporarilySetLabel)
+                    onDismiss()
+                }) {
+                    Text(
+                        "OK",
+                        color = MaterialTheme.colors.onBackground
+                    )
                 }
             }
         }
