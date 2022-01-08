@@ -1,4 +1,4 @@
-package com.example.simplepomodoro.components.charts
+package com.example.simplepomodoro.ui.components.charts
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -19,10 +19,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.simplepomodoro.components.charts.utils.AnimationProgress
-import com.example.simplepomodoro.components.charts.utils.Axis
-import com.example.simplepomodoro.components.charts.utils.ChartDataPoint
-import com.example.simplepomodoro.components.charts.utils.drawAxis
+import com.example.simplepomodoro.ui.components.charts.utils.AnimationProgress
+import com.example.simplepomodoro.ui.components.charts.utils.Axis
+import com.example.simplepomodoro.ui.components.charts.utils.ChartDataPoint
+import com.example.simplepomodoro.ui.components.charts.utils.drawAxis
 import com.example.simplepomodoro.ui.theme.SimplePomodoroTheme
 import com.example.simplepomodoro.utils.toLegacyInt
 

@@ -1,4 +1,4 @@
-package com.example.simplepomodoro.components.charts.utils
+package com.example.simplepomodoro.ui.components.charts.utils
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color

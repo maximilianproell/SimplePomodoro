@@ -1,4 +1,4 @@
-package com.example.simplepomodoro.components
+package com.example.simplepomodoro.ui.components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*

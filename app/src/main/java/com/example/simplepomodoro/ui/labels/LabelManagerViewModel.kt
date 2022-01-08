@@ -1,4 +1,4 @@
-package com.example.simplepomodoro.labels
+package com.example.simplepomodoro.ui.labels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,5 +27,15 @@ class LabelManagerViewModel @Inject constructor(
 
     fun insertLabel(label: LabelEntity) = viewModelScope.launch(Dispatchers.IO) {
         repository.insertLabel(label)
+    }
+
+    fun deleteLabelByName(labelName: String) = viewModelScope.launch(Dispatchers.IO) {
+        repository.deleteLabel(
+            LabelEntity(name = labelName)
+        )
+    }
+
+    fun updateLabelName(oldName: String, newName: String) = viewModelScope.launch(Dispatchers.IO) {
+        repository.updateLabelName(oldName, newName)
     }
 }

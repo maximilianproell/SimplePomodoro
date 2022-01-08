@@ -1,4 +1,4 @@
-package com.example.simplepomodoro.components
+package com.example.simplepomodoro.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi

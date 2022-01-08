@@ -17,4 +17,7 @@ interface LabelDao {
 
     @Query("SELECT * FROM label_table")
     fun getAllLabelsAsFlow(): Flow<List<LabelEntity>>
+
+    @Query("UPDATE LABEL_TABLE SET name = :newName WHERE name = :oldName")
+    suspend fun updateLabelName(oldName: String, newName: String)
 }

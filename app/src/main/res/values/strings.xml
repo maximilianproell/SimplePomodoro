@@ -8,4 +8,7 @@
     <string name="cancel">Cancel</string>
     <string name="chose_label">Chose label</string>
     <string name="edit_labels">Edit labels</string>
+    <string name="save_label_changes">Save label changes</string>
+    <string name="enter_label_name">Enter label name</string>
+    <string name="delete_label">Delete label</string>
 </resources>

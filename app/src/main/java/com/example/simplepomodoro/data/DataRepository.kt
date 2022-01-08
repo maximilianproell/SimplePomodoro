@@ -21,4 +21,8 @@ class DataRepository @Inject constructor(
         .flowOn(Dispatchers.IO)
 
     suspend fun insertLabel(label: LabelEntity) = database.labelDao().insertLabel(label)
+
+    suspend fun deleteLabel(label: LabelEntity) = database.labelDao().deleteLabel(label)
+
+    suspend fun updateLabelName(oldName: String, newName: String) = database.labelDao().updateLabelName(oldName, newName)
 }

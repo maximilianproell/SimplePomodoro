@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.simplepomodoro.components.charts.BarChart
+import com.example.simplepomodoro.ui.components.charts.BarChart
 
 @Composable
 fun StatisticsScreen() {

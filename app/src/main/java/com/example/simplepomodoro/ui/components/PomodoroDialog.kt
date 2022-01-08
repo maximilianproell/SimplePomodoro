@@ -1,4 +1,4 @@
-package com.example.simplepomodoro.components
+package com.example.simplepomodoro.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -10,7 +10,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
