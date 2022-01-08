@@ -90,10 +90,10 @@ fun LabelsList(
     onLabelSaveClick: (oldName: String, newName: String) -> Unit
 ) {
     var labelInEditMode by remember { mutableStateOf("") }
-    //val listState = rememberLazyListState()
+    val listState = rememberLazyListState()
 
-    LazyColumn() {
-        items(labels) { label ->
+    LazyColumn(state = listState) {
+        items(labels, key = { it.name }) { label ->
             LabelItem(
                 modifier = Modifier.animateItemPlacement(),
                 label = label,
@@ -108,9 +108,8 @@ fun LabelsList(
                 },
                 onLabelDeleteClick = {
                     onLabelDeleteClick(it)
-                }
+                },
             )
-            Divider()
         }
     }
 }
@@ -171,7 +170,7 @@ fun LabelItem(
     editMode: Boolean,
     onLabelClick: () -> Unit,
     onLabelSaveClick: (oldName: String, newName: String) -> Unit,
-    onLabelDeleteClick: (String) -> Unit
+    onLabelDeleteClick: (String) -> Unit,
 ) {
     var tmpLabelName by rememberSaveable {
         mutableStateOf(label.name)
@@ -181,27 +180,41 @@ fun LabelItem(
         modifier = modifier
             .fillMaxWidth()
             .height(48.dp)
-            .clickable(enabled = !editMode) {
+            .clickable(enabled = true) {
                 onLabelClick()
             }
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Box {
+        Box(
+            modifier = Modifier.weight(1f)
+        ) {
             BasicTextField(
+                modifier = Modifier
+                    .fillMaxSize(),
                 value = tmpLabelName,
                 onValueChange = {
                     tmpLabelName = it
                 },
                 enabled = editMode,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.body1,
+                decorationBox = { innerTextField ->
+                    Box(
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        if (tmpLabelName.isEmpty()) {
+                            // show hint if text is empty
+                            Text(
+                                text = stringResource(id = R.string.enter_label_name)
+                            )
+                        } else {
+                            innerTextField()
+                        }
+                    }
+                }
             )
-            // show hint if text is empty
-            if (tmpLabelName.isEmpty()) {
-                Text(
-                    text = stringResource(id = R.string.enter_label_name)
-                )
-            }
         }
 
         AnimatedVisibility(
