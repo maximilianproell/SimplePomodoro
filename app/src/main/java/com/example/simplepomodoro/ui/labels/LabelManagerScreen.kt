@@ -224,9 +224,8 @@ fun LabelItem(
                             Text(
                                 text = stringResource(id = R.string.enter_label_name)
                             )
-                        } else {
-                            innerTextField()
                         }
+                        innerTextField()
                     }
                 }
             )
