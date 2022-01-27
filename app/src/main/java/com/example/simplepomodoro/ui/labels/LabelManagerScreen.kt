@@ -1,6 +1,7 @@
 package com.example.simplepomodoro.ui.labels
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,16 +9,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.simplepomodoro.R
@@ -61,9 +65,11 @@ fun LabelManagerScreen(
                 },
                 onLabelSaveClick = { oldName, newName ->
                     viewModel.updateLabelName(oldName = oldName, newName = newName)
-                }
+                },
             )
+
             AddLabelTextButton(
+                modifier = Modifier,
                 onClick = {
                     showAddLabelAction = true
                 },
@@ -87,12 +93,15 @@ fun LabelManagerScreen(
 fun LabelsList(
     labels: List<LabelEntity>,
     onLabelDeleteClick: (String) -> Unit,
-    onLabelSaveClick: (oldName: String, newName: String) -> Unit
+    onLabelSaveClick: (oldName: String, newName: String) -> Unit,
 ) {
     var labelInEditMode by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
 
-    LazyColumn(state = listState) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.animateContentSize(animationSpec = TweenSpec())
+    ) {
         items(labels, key = { it.name }) { label ->
             LabelItem(
                 modifier = Modifier.animateItemPlacement(),
@@ -116,6 +125,7 @@ fun LabelsList(
 
 @Composable
 fun AddLabelTextButton(
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
     onSaveLabel: (String) -> Unit,
     showAddLabelAction: Boolean
@@ -135,7 +145,7 @@ fun AddLabelTextButton(
             )
         } else {
             TextButton(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth()
                     .height(48.dp),
                 onClick = { onClick() }
@@ -200,6 +210,11 @@ fun LabelItem(
                 enabled = editMode,
                 singleLine = true,
                 textStyle = MaterialTheme.typography.body1,
+                keyboardActions = KeyboardActions(onDone = {
+                    onLabelSaveClick(
+                        label.name, tmpLabelName
+                    )
+                }),
                 decorationBox = { innerTextField ->
                     Box(
                         contentAlignment = Alignment.CenterStart
