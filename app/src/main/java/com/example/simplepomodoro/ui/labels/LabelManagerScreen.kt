@@ -33,7 +33,6 @@ fun LabelManagerScreen(
     navController: NavController
 ) {
     val labels by viewModel.allLabelsStateFlow.collectAsState()
-    var showAddLabelAction by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -57,69 +56,78 @@ fun LabelManagerScreen(
             )
         }
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            LabelsList(
-                labels = labels,
-                onLabelDeleteClick = { labelNameToDelete ->
-                    viewModel.deleteLabelByName(labelNameToDelete)
-                },
-                onLabelSaveClick = { oldName, newName ->
-                    viewModel.updateLabelName(oldName = oldName, newName = newName)
-                },
-            )
 
-            AddLabelTextButton(
-                modifier = Modifier,
-                onClick = {
-                    showAddLabelAction = true
-                },
-                onSaveLabel = { labelName ->
-                    val labelTrimmed = labelName.trim()
-                    if (labelTrimmed.isNotEmpty()) {
-                        // save to DB
-                        viewModel.insertLabel(LabelEntity(name = labelTrimmed))
-                    }
-
-                    showAddLabelAction = false
-                },
-                showAddLabelAction = showAddLabelAction
-            )
-        }
+        LabelsList(
+            modifier = Modifier.fillMaxSize(),
+            labels = labels,
+            onLabelDelete = { labelNameToDelete ->
+                viewModel.deleteLabelByName(labelNameToDelete)
+            },
+            onLabelUpdate = { oldName, newName ->
+                viewModel.updateLabelName(oldName = oldName, newName = newName)
+            },
+            onLabelInsert = {
+                viewModel.insertLabel(it)
+            }
+        )
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LabelsList(
+    modifier: Modifier = Modifier,
     labels: List<LabelEntity>,
-    onLabelDeleteClick: (String) -> Unit,
-    onLabelSaveClick: (oldName: String, newName: String) -> Unit,
+    onLabelDelete: (String) -> Unit,
+    onLabelUpdate: (oldName: String, newName: String) -> Unit,
+    onLabelInsert: (labelToInsert: LabelEntity) -> Unit
 ) {
     var labelInEditMode by remember { mutableStateOf("") }
+    var showAddLabelAction by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
-    LazyColumn(
-        state = listState,
-        modifier = Modifier.animateContentSize(animationSpec = TweenSpec())
-    ) {
-        items(labels, key = { it.name }) { label ->
-            LabelItem(
-                modifier = Modifier.animateItemPlacement(),
-                label = label,
-                editMode = label.name == labelInEditMode,
-                onLabelClick = {
-                    // toggle edit mode for this label
-                    labelInEditMode = label.name
-                },
-                onLabelSaveClick = { oldName: String, newName: String ->
-                    labelInEditMode = ""
-                    onLabelSaveClick(oldName, newName)
-                },
-                onLabelDeleteClick = {
-                    onLabelDeleteClick(it)
-                },
-            )
+    Column(modifier = modifier) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.animateContentSize(animationSpec = TweenSpec())
+        ) {
+            items(labels, key = { it.name }) { label ->
+                LabelItem(
+                    modifier = Modifier.animateItemPlacement(),
+                    label = label,
+                    editMode = label.name == labelInEditMode,
+                    onLabelClick = {
+                        // toggle edit mode for this label
+                        labelInEditMode = label.name
+                    },
+                    onLabelSaveClick = { oldName: String, newName: String ->
+                        labelInEditMode = ""
+                        onLabelUpdate(oldName, newName)
+                    },
+                    onLabelDeleteClick = {
+                        onLabelDelete(it)
+                    },
+                )
+            }
         }
+
+        AddLabelTextButton(
+            modifier = Modifier,
+            onClick = {
+                labelInEditMode = ""
+                showAddLabelAction = true
+            },
+            onSaveLabel = { labelName ->
+                val labelTrimmed = labelName.trim()
+                if (labelTrimmed.isNotEmpty()) {
+                    // save to DB
+                    onLabelInsert(LabelEntity(name = labelTrimmed))
+                }
+
+                showAddLabelAction = false
+            },
+            showAddLabelAction = showAddLabelAction && labelInEditMode == ""
+        )
     }
 }
 
