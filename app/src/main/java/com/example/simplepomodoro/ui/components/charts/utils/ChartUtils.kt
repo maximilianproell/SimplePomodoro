@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 
 data class ChartDataPoint(
     val xValue: String,
-    val yValue: String
+    val yValue: Float
 )
 
 enum class Axis {

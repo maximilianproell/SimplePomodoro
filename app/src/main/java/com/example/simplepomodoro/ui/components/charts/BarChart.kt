@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,6 +32,7 @@ fun BarChart(
     modifier: Modifier = Modifier,
     dataPoints: List<ChartDataPoint>,
     barColor: Color = colors.onBackground,
+    barWidthDp: Dp = 12.dp,
     axisColor: Color = colors.onBackground,
     labelTextSize: TextUnit = 24.sp
 ) {
@@ -62,8 +64,13 @@ fun BarChart(
         modifier = modifier
             .padding(20.dp)
     ) {
-        // todo calculate bar spacing with these values
         val (canvasWidth, canvasHeight) = size
+
+        // calculate bar spacing in px
+        val startEndPaddingPx = 12.dp.toPx()
+        val barSpaceHorizontal = canvasWidth - startEndPaddingPx * 2
+        val sizeOccupiedByBars = barWidthDp.toPx() * dataPoints.size
+        val barSpacing = (barSpaceHorizontal - sizeOccupiedByBars) / (dataPoints.size - 1)
 
         drawAxis(
             drawScope = this,
@@ -76,11 +83,15 @@ fun BarChart(
             axisType = Axis.Y_AXIS
         )
 
-        drawRect(
-            color = barColor,
-            size = Size(width = 20f, height = barHeight),
-            topLeft = Offset(100f, size.height - barHeight)
-        )
+        var currentBarOffset = startEndPaddingPx
+        dataPoints.forEach { chartDataPoint ->
+            drawRect(
+                color = barColor,
+                size = Size(width = barWidthDp.toPx(), height = barHeight),
+                topLeft = Offset(currentBarOffset, canvasHeight - barHeight)
+            )
+            currentBarOffset += barSpacing + barWidthDp.toPx()
+        }
 
         drawIntoCanvas { canvas ->
             canvas.nativeCanvas.drawText(
@@ -103,7 +114,15 @@ fun BarChartPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp),
-            dataPoints = listOf()
+            dataPoints = listOf(
+                ChartDataPoint("MO", 8.5f),
+                ChartDataPoint("DI", 10.5f),
+                ChartDataPoint("MI", 8.5f),
+                ChartDataPoint("DO", 4.5f),
+                ChartDataPoint("FR", 3.0f),
+                ChartDataPoint("SA", 8.25f),
+                ChartDataPoint("SO", 9.75f),
+            )
         )
     }
 }
