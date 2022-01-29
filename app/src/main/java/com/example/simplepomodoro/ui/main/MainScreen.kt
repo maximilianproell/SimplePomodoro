@@ -1,6 +1,5 @@
 package com.example.simplepomodoro.ui.main
 
-import android.content.Context
 import android.text.format.DateUtils
 import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.*
@@ -20,22 +19,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavController
-import com.example.simplepomodoro.Constants
 import com.example.simplepomodoro.R
 import com.example.simplepomodoro.ServiceState
-import com.example.simplepomodoro.ui.components.BottomSheetEntry
-import com.example.simplepomodoro.ui.components.Chip
-import com.example.simplepomodoro.ui.components.PomodoroDialog
 import com.example.simplepomodoro.data.entities.LabelEntity
 import com.example.simplepomodoro.data.entities.SelectedLabel
 import com.example.simplepomodoro.navigation.PomodoroScreen
+import com.example.simplepomodoro.ui.components.BottomSheetEntry
+import com.example.simplepomodoro.ui.components.Chip
+import com.example.simplepomodoro.ui.components.PomodoroDialog
 import com.example.simplepomodoro.utils.convertLabelNameToDisplayName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -384,6 +381,7 @@ fun LabelDialog(
     onEditLabelsClicked: () -> Unit = {}
 ) {
     var temporarilySetLabel by remember { mutableStateOf(currentlySetLabel) }
+    val noLabelName: String = stringResource(id = R.string.no_label)
 
     PomodoroDialog(
         showDialog = showDialog,
@@ -421,6 +419,16 @@ fun LabelDialog(
                     Chip(
                         name = label.name,
                         isSelected = label.name == temporarilySetLabel,
+                        onSelectionChanged = {
+                            temporarilySetLabel = it
+                        }
+                    )
+                }
+                item {
+                    // standard no-label label
+                    Chip(
+                        name = noLabelName,
+                        isSelected = noLabelName == temporarilySetLabel,
                         onSelectionChanged = {
                             temporarilySetLabel = it
                         }

@@ -147,9 +147,11 @@ class PomodoroService : LifecycleService() {
                 this@PomodoroService.lifecycleScope.launch(Dispatchers.IO) {
                     val currentlySetLabel = repository.getSelectedLabelSync() ?: SelectedLabel()
 
-                    Timber.d("inserting finished work package to DB\n" +
-                            "seconds worked: ${Constants.initialTimerSeconds}\n" +
-                            "label: $currentlySetLabel")
+                    Timber.d(
+                        "inserting finished work package to DB\n" +
+                                "seconds worked: ${Constants.initialTimerSeconds}\n" +
+                                "label: $currentlySetLabel"
+                    )
                     repository.insertWorkPackage(
                         WorkPackageEntity(
                             labelName = currentlySetLabel.selectedLabelName,
@@ -157,9 +159,9 @@ class PomodoroService : LifecycleService() {
                             date = LocalDateTime.now()
                         )
                     )
-                }
 
-                stopPomodoroTimer()
+                    stopPomodoroTimer()
+                }
             }
         }
     }
