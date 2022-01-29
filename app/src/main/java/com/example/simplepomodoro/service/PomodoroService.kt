@@ -18,6 +18,7 @@ import com.example.simplepomodoro.R
 import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.SimplePomodoroApplication.Constants.CHANNEL_ID
 import com.example.simplepomodoro.data.DataRepository
+import com.example.simplepomodoro.data.entities.SelectedLabel
 import com.example.simplepomodoro.data.entities.WorkPackageEntity
 import com.example.simplepomodoro.service.PomodoroService.ServiceConstants.timerNotificationId
 import dagger.hilt.android.AndroidEntryPoint
@@ -144,22 +145,14 @@ class PomodoroService : LifecycleService() {
 
             override fun onFinish() {
                 this@PomodoroService.lifecycleScope.launch(Dispatchers.IO) {
-                    val sharedPref = getSharedPreferences(
-                        Constants.sharedPrefIdentifier,
-                        MODE_PRIVATE
-                    )
-
-                    val currentlySetLabel = sharedPref.getString(
-                        Constants.currentLabelSharedPref,
-                        Constants.noLabelLabel
-                    )
+                    val currentlySetLabel = repository.getSelectedLabelSync() ?: SelectedLabel()
 
                     Timber.d("inserting finished work package to DB\n" +
                             "seconds worked: ${Constants.initialTimerSeconds}\n" +
                             "label: $currentlySetLabel")
                     repository.insertWorkPackage(
                         WorkPackageEntity(
-                            labelName = currentlySetLabel,
+                            labelName = currentlySetLabel.selectedLabelName,
                             secondsWorked = Constants.initialTimerSeconds,
                             date = LocalDateTime.now()
                         )

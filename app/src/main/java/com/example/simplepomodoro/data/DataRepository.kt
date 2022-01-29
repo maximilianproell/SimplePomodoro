@@ -29,6 +29,8 @@ class DataRepository @Inject constructor(
     suspend fun updateLabelName(oldName: String, newName: String) =
         database.labelDao().updateLabelName(oldName, newName)
 
+    fun getSelectedLabelSync() = database.selectedLabelDao().getSelectedLabelSync()
+
     fun getSelectedLabelFlow() =
         database
             .selectedLabelDao()

@@ -14,4 +14,7 @@ interface SelectedLabelDao {
 
     @Query("SELECT * FROM selectedlabel LIMIT 1")
     fun getSelectedLabelFlow(): Flow<SelectedLabel?>
+
+    @Query("SELECT * FROM selectedlabel LIMIT 1")
+    fun getSelectedLabelSync(): SelectedLabel?
 }
