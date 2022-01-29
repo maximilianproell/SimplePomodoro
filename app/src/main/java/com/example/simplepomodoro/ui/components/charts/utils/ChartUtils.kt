@@ -4,6 +4,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import com.example.simplepomodoro.utils.toLegacyInt
 
 data class ChartDataPoint(
     val xValue: String,
@@ -21,16 +24,17 @@ enum class AnimationProgress {
 fun drawAxis(
     drawScope: DrawScope,
     axisColor: Color,
-    axisType: Axis
+    axisType: Axis,
+    offsetPadding: Float = 0f
 ) {
     with(drawScope) {
         val (width, height) = size
         val (start, end) = when (axisType) {
             Axis.X_AXIS -> {
-                Offset(0f, height) to Offset(width, height)
+                Offset(offsetPadding, height - offsetPadding) to Offset(width, height - offsetPadding)
             }
             Axis.Y_AXIS -> {
-                Offset(0f, 0f) to Offset(0f, height)
+                Offset(offsetPadding, 0f) to Offset(offsetPadding, height - offsetPadding)
             }
         }
 
@@ -39,6 +43,23 @@ fun drawAxis(
             start = start,
             end = end,
             strokeWidth = Stroke.DefaultMiter
+        )
+    }
+}
+
+fun drawYAxisLabel(
+    drawScope: DrawScope,
+    labelColor: Color,
+    labelTextSizePx: Float
+) {
+    drawScope.drawIntoCanvas { canvas ->
+        canvas.nativeCanvas.drawText(
+            "halloo",
+            100f, 100f,
+            android.graphics.Paint().apply {
+                textSize = labelTextSizePx
+                color = labelColor.toLegacyInt()
+            }
         )
     }
 }

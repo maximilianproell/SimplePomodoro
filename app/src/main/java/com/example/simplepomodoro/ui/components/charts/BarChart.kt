@@ -2,12 +2,12 @@ package com.example.simplepomodoro.ui.components.charts
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -31,10 +31,11 @@ import com.example.simplepomodoro.utils.toLegacyInt
 fun BarChart(
     modifier: Modifier = Modifier,
     dataPoints: List<ChartDataPoint>,
+    maxYValue: Float,
     barColor: Color = colors.onBackground,
     barWidthDp: Dp = 12.dp,
     axisColor: Color = colors.onBackground,
-    labelTextSize: TextUnit = 24.sp
+    labelTextSize: TextUnit = 12.sp
 ) {
     val currentAnimationState = remember {
         MutableTransitionState(AnimationProgress.START).apply {
@@ -47,63 +48,74 @@ fun BarChart(
         label = "bar_chart_transition"
     )
 
-    val barHeight by barAnimationTransition.animateFloat(
-        transitionSpec = {
-            tween(
-                delayMillis = 500,
-                durationMillis = 2000,
-                easing = FastOutSlowInEasing,
-            )
-        }, label = ""
-    ) { progress ->
-        if (progress == AnimationProgress.START) 0f
-        else 300f
-    }
-
-    Canvas(
-        modifier = modifier
-            .padding(20.dp)
-    ) {
-        val (canvasWidth, canvasHeight) = size
-
-        // calculate bar spacing in px
-        val startEndPaddingPx = 12.dp.toPx()
-        val barSpaceHorizontal = canvasWidth - startEndPaddingPx * 2
-        val sizeOccupiedByBars = barWidthDp.toPx() * dataPoints.size
-        val barSpacing = (barSpaceHorizontal - sizeOccupiedByBars) / (dataPoints.size - 1)
-
-        drawAxis(
-            drawScope = this,
-            axisColor = axisColor,
-            axisType = Axis.X_AXIS
-        )
-        drawAxis(
-            drawScope = this,
-            axisColor = axisColor,
-            axisType = Axis.Y_AXIS
-        )
-
-        var currentBarOffset = startEndPaddingPx
-        dataPoints.forEach { chartDataPoint ->
-            drawRect(
-                color = barColor,
-                size = Size(width = barWidthDp.toPx(), height = barHeight),
-                topLeft = Offset(currentBarOffset, canvasHeight - barHeight)
-            )
-            currentBarOffset += barSpacing + barWidthDp.toPx()
-        }
-
-        drawIntoCanvas { canvas ->
-            canvas.nativeCanvas.drawText(
-                "halloo",
-                100f, 100f,
-                android.graphics.Paint().apply {
-                    textSize = labelTextSize.toPx()
-                    color = axisColor.toLegacyInt()
-                }
-            )
+    val barPercentageHeights = dataPoints.map { dataPoint ->
+        barAnimationTransition.animateFloat(
+            transitionSpec = {
+                tween(
+                    delayMillis = 500,
+                    durationMillis = 2000,
+                    easing = FastOutSlowInEasing,
+                )
+            }, label = dataPoint.xValue
+        ) { progress ->
+            if (progress == AnimationProgress.START) 0f
+            else dataPoint.yValue / maxYValue
         }
     }
+
+    Box(modifier = modifier.padding(12.dp)) {
+        Canvas(
+            modifier = modifier
+        ) {
+            val (canvasWidth, canvasHeight) = size
+            val spaceForLabel = 24.dp.toPx()
+            val chartWidth = canvasWidth - spaceForLabel
+            val chartHeight = canvasHeight - spaceForLabel
+
+            // calculate bar spacing in px
+            val chartPadding = 12.dp.toPx()
+            // 2 * chart padding + space for Label at start
+            val barSpaceHorizontal = chartWidth - (chartPadding * 2)
+            val sizeOccupiedByBars = barWidthDp.toPx() * dataPoints.size
+            val barSpacing = (barSpaceHorizontal - sizeOccupiedByBars) / (dataPoints.size - 1)
+
+            drawAxis(
+                drawScope = this,
+                axisColor = axisColor,
+                axisType = Axis.X_AXIS,
+                offsetPadding = spaceForLabel
+            )
+            drawAxis(
+                drawScope = this,
+                axisColor = axisColor,
+                axisType = Axis.Y_AXIS,
+                offsetPadding = spaceForLabel
+            )
+
+            var currentBarOffset = chartPadding + spaceForLabel
+            dataPoints.forEachIndexed { index, chartDataPoint ->
+                val barHeight = barPercentageHeights[index].value * chartHeight
+                drawRect(
+                    color = barColor,
+                    size = Size(width = barWidthDp.toPx(), height = barHeight),
+                    topLeft = Offset(currentBarOffset, chartHeight - barHeight)
+                )
+                currentBarOffset += barSpacing + barWidthDp.toPx()
+            }
+
+            drawIntoCanvas { canvas ->
+                canvas.nativeCanvas.drawText(
+                    "halloo",
+                    100f, 100f,
+                    android.graphics.Paint().apply {
+                        textSize = labelTextSize.toPx()
+                        color = axisColor.toLegacyInt()
+                    }
+                )
+            }
+        }
+    }
+
 }
 
 @Preview(showBackground = true)
@@ -121,8 +133,10 @@ fun BarChartPreview() {
                 ChartDataPoint("DO", 4.5f),
                 ChartDataPoint("FR", 3.0f),
                 ChartDataPoint("SA", 8.25f),
-                ChartDataPoint("SO", 9.75f),
-            )
+                ChartDataPoint("SO", 12.0f),
+            ),
+            // let's just say, 12h is the maximum one would work a day
+            maxYValue = 12.0f
         )
     }
 }

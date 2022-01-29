@@ -9,10 +9,10 @@ import com.example.simplepomodoro.ui.components.charts.BarChart
 
 @Composable
 fun StatisticsScreen() {
-    BarChart(
+    /*BarChart(
         modifier = Modifier
             .fillMaxWidth()
             .height(300.dp),
         dataPoints = listOf()
-    )
+    )*/
 }
