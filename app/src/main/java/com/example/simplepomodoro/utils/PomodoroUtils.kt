@@ -8,9 +8,8 @@ import com.example.simplepomodoro.Constants
  * It only converts the "no-label" String to the given noLabelName. This is useful when different
  * languages are used.
  */
-fun convertLabelNameToDisplayName(labelName: String, noLabelName: String): String {
-    return if (labelName == Constants.noLabelLabel) noLabelName
-    else labelName
+fun convertLabelNameToDisplayName(labelName: String?, noLabelName: String): String {
+    return labelName ?: noLabelName
 }
 
 fun Color.toLegacyInt(): Int {

@@ -28,14 +28,13 @@ import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import androidx.navigation.NavController
 import com.example.simplepomodoro.Constants
-import com.example.simplepomodoro.Constants.currentLabelSharedPref
-import com.example.simplepomodoro.Constants.sharedPrefIdentifier
 import com.example.simplepomodoro.R
 import com.example.simplepomodoro.ServiceState
 import com.example.simplepomodoro.ui.components.BottomSheetEntry
 import com.example.simplepomodoro.ui.components.Chip
 import com.example.simplepomodoro.ui.components.PomodoroDialog
 import com.example.simplepomodoro.data.entities.LabelEntity
+import com.example.simplepomodoro.data.entities.SelectedLabel
 import com.example.simplepomodoro.navigation.PomodoroScreen
 import com.example.simplepomodoro.utils.convertLabelNameToDisplayName
 import kotlinx.coroutines.CoroutineScope
@@ -65,13 +64,12 @@ fun MainScreen(
     var miniFabExpandedState by remember { mutableStateOf(false) }
     var showLabelDialog by remember { mutableStateOf(false) }
 
-    val sharedPref = LocalContext.current.getSharedPreferences(
-        sharedPrefIdentifier, Context.MODE_PRIVATE
-    )
+    val currentlySetLabel by viewModel
+        .selectedLabelFlow
+        .collectAsState(
+            initial = SelectedLabel()
+        )
 
-    var currentlySetLabel by remember {
-        mutableStateOf(sharedPref.getString(currentLabelSharedPref, Constants.noLabelLabel)!!)
-    }
 
     val allLabels by viewModel.allLabelsFlow.collectAsState(initial = emptyList())
 
@@ -226,7 +224,7 @@ fun MainScreen(
 
                     Chip(
                         name = convertLabelNameToDisplayName(
-                            labelName = currentlySetLabel,
+                            labelName = currentlySetLabel.selectedLabelName,
                             noLabelName = stringResource(id = R.string.no_label)
                         ),
                         onSelectionChanged = {
@@ -237,13 +235,12 @@ fun MainScreen(
                         showDialog = showLabelDialog,
                         onDismiss = { showLabelDialog = false },
                         labels = allLabels,
-                        currentlySetLabel = currentlySetLabel,
+                        currentlySetLabel = convertLabelNameToDisplayName(
+                            labelName = currentlySetLabel.selectedLabelName,
+                            noLabelName = stringResource(id = R.string.no_label)
+                        ),
                         onLabelChanged = { newLabel ->
-                            currentlySetLabel = newLabel
-                            sharedPref
-                                .edit()
-                                .putString(currentLabelSharedPref, newLabel)
-                                .apply()
+                            viewModel.selectLabel(SelectedLabel(selectedLabelName = newLabel))
                         },
                         onEditLabelsClicked = {
                             navController.navigate(PomodoroScreen.Labels.routeName)

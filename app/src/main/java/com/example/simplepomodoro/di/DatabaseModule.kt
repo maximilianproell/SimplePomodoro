@@ -20,6 +20,6 @@ object DatabaseModule {
         return Room.databaseBuilder(
             applicationContext,
             PomodoroDatabase::class.java, "pomodoro-database"
-        ).createFromAsset("pomodoro-database.db").build()
+        ).fallbackToDestructiveMigration().build()
     }
 }

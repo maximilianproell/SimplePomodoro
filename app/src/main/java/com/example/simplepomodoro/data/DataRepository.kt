@@ -1,9 +1,11 @@
 package com.example.simplepomodoro.data
 
 import com.example.simplepomodoro.data.entities.LabelEntity
+import com.example.simplepomodoro.data.entities.SelectedLabel
 import com.example.simplepomodoro.data.entities.WorkPackageEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,5 +26,19 @@ class DataRepository @Inject constructor(
 
     suspend fun deleteLabel(label: LabelEntity) = database.labelDao().deleteLabel(label)
 
-    suspend fun updateLabelName(oldName: String, newName: String) = database.labelDao().updateLabelName(oldName, newName)
+    suspend fun updateLabelName(oldName: String, newName: String) =
+        database.labelDao().updateLabelName(oldName, newName)
+
+    fun getSelectedLabelFlow() =
+        database
+            .selectedLabelDao()
+            .getSelectedLabelFlow()
+            .map {
+                // there is no selected label yet
+                it ?: SelectedLabel()
+            }
+            .flowOn(Dispatchers.IO)
+
+    suspend fun selectLabel(selectedLabel: SelectedLabel) =
+        database.selectedLabelDao().selectLabel(selectedLabel)
 }
