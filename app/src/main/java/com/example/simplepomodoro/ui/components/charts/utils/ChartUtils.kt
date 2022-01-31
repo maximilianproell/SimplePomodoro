@@ -50,12 +50,15 @@ fun drawAxis(
 fun drawYAxisLabel(
     drawScope: DrawScope,
     labelColor: Color,
-    labelTextSizePx: Float
+    text: String,
+    labelTextSizePx: Float,
+    xPosition: Float,
+    yPosition: Float
 ) {
     drawScope.drawIntoCanvas { canvas ->
         canvas.nativeCanvas.drawText(
-            "halloo",
-            100f, 100f,
+            text,
+            xPosition, yPosition,
             android.graphics.Paint().apply {
                 textSize = labelTextSizePx
                 color = labelColor.toLegacyInt()

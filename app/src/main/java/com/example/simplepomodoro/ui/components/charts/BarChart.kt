@@ -13,19 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.simplepomodoro.ui.components.charts.utils.AnimationProgress
-import com.example.simplepomodoro.ui.components.charts.utils.Axis
-import com.example.simplepomodoro.ui.components.charts.utils.ChartDataPoint
-import com.example.simplepomodoro.ui.components.charts.utils.drawAxis
+import com.example.simplepomodoro.ui.components.charts.utils.*
 import com.example.simplepomodoro.ui.theme.SimplePomodoroTheme
-import com.example.simplepomodoro.utils.toLegacyInt
+import kotlin.math.ceil
 
 @Composable
 fun BarChart(
@@ -93,26 +88,35 @@ fun BarChart(
             )
 
             var currentBarOffset = chartPadding + spaceForLabel
-            dataPoints.forEachIndexed { index, chartDataPoint ->
+            dataPoints.forEachIndexed { index, dataPoint ->
                 val barHeight = barPercentageHeights[index].value * chartHeight
                 drawRect(
                     color = barColor,
                     size = Size(width = barWidthDp.toPx(), height = barHeight),
                     topLeft = Offset(currentBarOffset, chartHeight - barHeight)
                 )
+
+                drawYAxisLabel(
+                    drawScope = this,
+                    labelColor = axisColor,
+                    text = dataPoint.xValue,
+                    labelTextSizePx = labelTextSize.toPx(),
+                    xPosition = currentBarOffset,
+                    yPosition = canvasHeight
+                )
+
                 currentBarOffset += barSpacing + barWidthDp.toPx()
             }
 
-            drawIntoCanvas { canvas ->
-                canvas.nativeCanvas.drawText(
-                    "halloo",
-                    100f, 100f,
-                    android.graphics.Paint().apply {
-                        textSize = labelTextSize.toPx()
-                        color = axisColor.toLegacyInt()
-                    }
-                )
-            }
+            // draw highest y value label
+            drawYAxisLabel(
+                drawScope = this,
+                labelColor = axisColor,
+                text = "${ceil(maxYValue).toInt()}h",
+                labelTextSizePx = labelTextSize.toPx(),
+                xPosition = 0f,
+                yPosition = 12.dp.toPx(),
+            )
         }
     }
 
