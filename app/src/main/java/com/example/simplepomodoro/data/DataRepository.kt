@@ -43,4 +43,10 @@ class DataRepository @Inject constructor(
 
     suspend fun selectLabel(selectedLabel: SelectedLabel) =
         database.selectedLabelDao().selectLabel(selectedLabel)
+
+    fun getAllWorkPackagesAsFlow() =
+        database
+            .workPackageDao()
+            .getAllWorkPackagesAsFlow()
+            .flowOn(Dispatchers.IO)
 }
