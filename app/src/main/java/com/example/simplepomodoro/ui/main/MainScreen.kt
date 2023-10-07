@@ -377,7 +377,7 @@ fun LabelDialog(
     onDismiss: () -> Unit,
     labels: List<LabelEntity>,
     currentlySetLabel: String,
-    onLabelChanged: (String) -> Unit = {},
+    onLabelChanged: (String?) -> Unit = {},
     onEditLabelsClicked: () -> Unit = {}
 ) {
     var temporarilySetLabel by remember { mutableStateOf(currentlySetLabel) }
@@ -446,7 +446,7 @@ fun LabelDialog(
                     )
                 }
                 TextButton(onClick = {
-                    onLabelChanged(temporarilySetLabel)
+                    onLabelChanged(if (temporarilySetLabel == noLabelName) null else temporarilySetLabel)
                     onDismiss()
                 }) {
                     Text(

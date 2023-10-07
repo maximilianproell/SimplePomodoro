@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
         parentColumns = ["name"],
         childColumns = ["selectedLabelName"],
         onDelete = SET_NULL,
-        onUpdate = CASCADE
+        onUpdate = CASCADE,
     )]
 )
 data class SelectedLabel(
