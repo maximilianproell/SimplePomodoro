@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
@@ -38,9 +37,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 sealed class MainScreenEvent {
-    object OnPauseTimer : MainScreenEvent()
-    object OnStartTimer : MainScreenEvent()
-    object OnStopTimer : MainScreenEvent()
+    data object OnPauseTimer : MainScreenEvent()
+    data object OnStartTimer : MainScreenEvent()
+    data object OnStopTimer : MainScreenEvent()
 }
 
 @ExperimentalAnimationApi
@@ -54,7 +53,7 @@ fun MainScreen(
     val scaffoldState = rememberScaffoldState()
     val bottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { true }
+        confirmValueChange = { true }
     )
     val coroutineScope = rememberCoroutineScope()
 
@@ -77,16 +76,16 @@ fun MainScreen(
             easing = {
                 OvershootInterpolator(5f).getInterpolation(it)
             }
-        )
+        ), label = "mainFabIconScale"
     )
 
-    val timerOpacityAnimation by rememberInfiniteTransition().animateFloat(
+    val timerOpacityAnimation by rememberInfiniteTransition(label = "infinite").animateFloat(
         initialValue = 1f,
         targetValue = if (viewModel.mutableServiceState == ServiceState.PAUSED) .4f else 1f,
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
-        )
+        ), label = "timerOpacityAnimation"
     )
 
     val constraints = ConstraintSet {
@@ -208,7 +207,8 @@ fun MainScreen(
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .padding(it),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -370,7 +370,6 @@ fun ResetIcon(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LabelDialog(
     showDialog: Boolean,

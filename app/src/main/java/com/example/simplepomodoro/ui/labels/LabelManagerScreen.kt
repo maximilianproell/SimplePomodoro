@@ -21,7 +21,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.simplepomodoro.R
@@ -142,7 +144,7 @@ fun AddLabelTextButton(
     onSaveLabel: (String) -> Unit,
     showAddLabelAction: Boolean
 ) {
-    Crossfade(targetState = showAddLabelAction) { showAddLabel ->
+    Crossfade(targetState = showAddLabelAction, label = "addLabelCrossfade") { showAddLabel ->
         if (showAddLabel) {
             LabelItem(
                 label = LabelEntity(name = ""),
@@ -175,7 +177,6 @@ fun AddLabelTextButton(
                     )
                     Text(
                         text = "Add Label",
-                        style = MaterialTheme.typography.button
                     )
                 }
             }
@@ -196,6 +197,9 @@ fun LabelItem(
     var tmpLabelName by rememberSaveable {
         mutableStateOf(label.name)
     }
+
+    val localStyle = LocalTextStyle.current
+    val mergedStyle = localStyle.merge(TextStyle(color = LocalContentColor.current))
 
     Row(
         modifier = modifier
@@ -220,7 +224,8 @@ fun LabelItem(
                 },
                 enabled = editMode,
                 singleLine = true,
-                textStyle = MaterialTheme.typography.body1,
+                textStyle = mergedStyle,
+                cursorBrush = SolidColor(mergedStyle.color),
                 keyboardActions = KeyboardActions(onDone = {
                     onLabelSaveClick(
                         label.name, tmpLabelName
@@ -233,7 +238,8 @@ fun LabelItem(
                         if (tmpLabelName.isEmpty()) {
                             // show hint if text is empty
                             Text(
-                                text = stringResource(id = R.string.enter_label_name)
+                                text = stringResource(id = R.string.enter_label_name),
+                                color = MaterialTheme.colors.primaryVariant
                             )
                         }
                         innerTextField()
