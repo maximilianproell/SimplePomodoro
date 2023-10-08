@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,14 +20,16 @@ fun StatisticsScreen(
     val chartDataAsState =
         viewModel.chartDataForAllWorkPackagesFlow.collectAsState(initial = listOf())
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text("This chart shows the total amount of worked hours.")
-        BarChart(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp),
-            dataPoints = chartDataAsState.value,
-            maxYValue = chartDataAsState.value.maxOfOrNull { it.yValue } ?: 12f,
-        )
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Text("This chart shows the total amount of worked hours.")
+            BarChart(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp),
+                dataPoints = chartDataAsState.value,
+                maxYValue = chartDataAsState.value.maxOfOrNull { it.yValue } ?: 12f,
+            )
+        }
     }
 }

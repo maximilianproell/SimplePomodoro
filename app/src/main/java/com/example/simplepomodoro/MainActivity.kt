@@ -23,11 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 
 object Constants {
-    const val initialTimerSeconds: Long = 5
-    const val sharedPrefIdentifier = "com.example.simplepomodoro.shared.pref"
-    const val currentLabelSharedPref = "shared_pref_curr_label"
-
-    const val noLabelLabel = "no-label"
+    const val initialTimerSeconds: Long = 1800
 }
 
 enum class ServiceState {
