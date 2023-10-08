@@ -16,7 +16,7 @@ This project is unfinished as I started working on a new pomodor timer app runni
 
 ## Screenshots
 
-![images](images/Screenshot_20231008_134722-0.png)
-![images](images/Screenshot_20231008_134722-1.png)
-![images](images/Screenshot_20231008_134722-2.png)
-![images](images/darkmode.png)
+<img src="images/Screenshot_20231008_134722-0.png" height="600px">
+<img src="images/Screenshot_20231008_134722-1.png" height="600px">
+<img src="images/Screenshot_20231008_134722-2.png" height="600px">
+<img src="images/darkmode.png" height="600px">
