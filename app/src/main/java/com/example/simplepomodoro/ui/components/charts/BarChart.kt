@@ -32,7 +32,7 @@ fun BarChart(
     axisColor: Color = colors.onBackground,
     labelTextSize: TextUnit = 12.sp
 ) {
-    val currentAnimationState = remember {
+    val currentAnimationState = remember(dataPoints) {
         MutableTransitionState(AnimationProgress.START).apply {
             targetState = AnimationProgress.END
         }
