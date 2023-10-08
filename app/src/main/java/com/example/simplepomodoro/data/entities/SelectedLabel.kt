@@ -2,8 +2,8 @@ package com.example.simplepomodoro.data.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.ForeignKey.CASCADE
-import androidx.room.ForeignKey.SET_NULL
+import androidx.room.ForeignKey.Companion.CASCADE
+import androidx.room.ForeignKey.Companion.SET_NULL
 import androidx.room.PrimaryKey
 
 @Entity(

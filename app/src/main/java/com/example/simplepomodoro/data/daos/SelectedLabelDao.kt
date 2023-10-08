@@ -2,7 +2,7 @@ package com.example.simplepomodoro.data.daos
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import com.example.simplepomodoro.data.entities.SelectedLabel
 import kotlinx.coroutines.flow.Flow

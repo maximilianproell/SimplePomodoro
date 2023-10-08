@@ -55,21 +55,25 @@ fun LabelManagerScreen(
                 }
             )
         }
-    ) {
+    ) { scaffoldPaddings ->
+        Surface {
+            LabelsList(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(scaffoldPaddings),
+                labels = labels,
+                onLabelDelete = { labelNameToDelete ->
+                    viewModel.deleteLabelByName(labelNameToDelete)
+                },
+                onLabelUpdate = { oldName, newName ->
+                    viewModel.updateLabelName(oldName = oldName, newName = newName)
+                },
+                onLabelInsert = {
+                    viewModel.insertLabel(it)
+                }
+            )
+        }
 
-        LabelsList(
-            modifier = Modifier.fillMaxSize(),
-            labels = labels,
-            onLabelDelete = { labelNameToDelete ->
-                viewModel.deleteLabelByName(labelNameToDelete)
-            },
-            onLabelUpdate = { oldName, newName ->
-                viewModel.updateLabelName(oldName = oldName, newName = newName)
-            },
-            onLabelInsert = {
-                viewModel.insertLabel(it)
-            }
-        )
     }
 }
 
@@ -180,7 +184,6 @@ fun AddLabelTextButton(
 
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun LabelItem(
     modifier: Modifier = Modifier,
